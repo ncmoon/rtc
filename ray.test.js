@@ -66,6 +66,7 @@ import { PerformanceObserver, performance } from 'node:perf_hooks';
 import lib from './ray.js';
 import {testChapter1, testChapter2, testChapter3, testChapter4, testChapter5} from './ray1to5.test.js';
 import {testChapter6, testChapter7, testChapter8, testChapter9, testChapter10} from './ray6to10.test.js';
+import {testChapter11, testChapter12, testChapter13, testChapter14, testChapter15} from './ray11to15.test.js';
 
 
 function testTuple() {
@@ -190,6 +191,8 @@ function benchmark() {
 
 } //benchmark
 
+
+//TODO move this to ray.js
 import fs from 'fs';
 import jpeg from 'jpeg-js';
 
@@ -203,6 +206,7 @@ function asJPEG(canvas, filename) {
       nx = canvas[0].length,
       ny = canvas.length;
     var
+        //TODO change call to Buffer() to something not deprecated
       frameData = new Buffer(nx * ny * 4);
     var i, x, y;
     for (y = 0; y < ny; y++) {
@@ -261,7 +265,6 @@ function draw6() {
     asJPEG(result, 'image6.jpg');
 } //draw6
 
-
 function draw7() {
     const
         w = lib.DefaultWorld(),
@@ -274,21 +277,60 @@ function draw7() {
     w.objects[1].material.diffuse = 0.7;
     w.objects[1].material.specular = 0.3;
 
-    w.objects.push(lib.sphere.new());                           //left ball 
+    w.objects.push(lib.Sphere());                           //left ball 
     w.objects[2].transform = lib.m4x4.multiply(lib.m4x4.translate(-1.5, 0.33, -0.75), lib.m4x4.scale(0.33,0.33,0.33));
     w.objects[2].material.color = lib.tuple.color(0, 1, 1);
     w.objects[2].material.diffuse = 1;
     w.objects[2].material.specular = 1;
     w.objects[2].material.shininess = 1200;
 
-    w.objects.push(lib.sphere.new());                           //floor
+    w.objects.push(lib.Sphere());                           //floor
     w.objects[3].transform = lib.m4x4.scale(10,0.01, 10);
     w.objects[3].material.color = lib.tuple.color(1, 0.9, 0.9);
     w.objects[3].material.specular = 0;
 
-    asJPEG(c.render(w), 'image7.jpg');
+    var
+      t0, t1, canvas;
+    t0 = performance.now();
+    canvas = c.render(w);
+    t1 = performance.now();
+    console.log(t1-t0, 'mS', 1000*500, 'rays');
+    asJPEG(canvas, 'image7.jpg');
 } //draw7
 
+function draw9() {
+    const
+        w = lib.DefaultWorld(),
+        c = lib.Camera(1000, 500, Math.PI/3);
+    c.transform = lib.m4x4.viewTransform(lib.tuple.point(0, 1.5, -5), lib.tuple.point(0, 1, 0), lib.tuple.vector(0, 1, 0));
+    w.objects[0].transform = lib.m4x4.translate(-0.5, 1.5, 0.5); //middle ball
+
+    w.objects[1].transform = lib.m4x4.multiply(lib.m4x4.translate(1.5, 0.5, -0.5), lib.m4x4.scale(0.5,0.5,0.5));
+    w.objects[1].material.color = lib.tuple.color(0.5, 1, 0.1); //right ball
+    w.objects[1].material.diffuse = 0.7;
+    w.objects[1].material.specular = 0.3;
+
+    w.objects.push(lib.Sphere());                           //left ball 
+    w.objects[2].transform = lib.m4x4.multiply(lib.m4x4.translate(-1.5, 0.2, -0.75), lib.m4x4.scale(0.33,0.33,0.33));
+    w.objects[2].material.color = lib.tuple.color(0, 1, 1);
+    w.objects[2].material.diffuse = 1;
+    w.objects[2].material.specular = 1;
+    w.objects[2].material.shininess = 1200;
+
+    w.objects.push(lib.Plane(lib.Material(lib.tuple.color(1,0,0),0.3,0.4,1,100)));       //floor
+    //w.objects[3].transform = lib.m4x4.scale(10,0.01, 10);
+    //w.objects[3].material.color = lib.tuple.color(1, 0.9, 0.9);
+    //w.objects[3].material.specular = 0;
+    w.objects.push(lib.Plane(lib.Material(lib.tuple.color(0.5,0.5,1),1),lib.m4x4.translate(0, 11, 0)));       //ceiling
+
+    var
+      t0, t1, canvas;
+    t0 = performance.now();
+    canvas = c.render(w);
+    t1 = performance.now();
+    console.log(t1-t0, 'mS', 1000*500, 'rays');
+    asJPEG(canvas, 'image9.jpg');
+} //draw9
 
 testChapter1();
 testChapter2();
@@ -302,14 +344,21 @@ testChapter8();
 testChapter9();
 testChapter10();
 
+testChapter11();
+testChapter12();
+testChapter13();
+testChapter14();
+testChapter15();
+
 //testTuple();
 testM4x4();
 testM4x4();
 testM4x4();
 
-//benchmark();
+benchmark();
 //draw6();
-draw7();
+//draw7();
+draw9();
 
 export {
     assert,

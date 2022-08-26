@@ -43,7 +43,17 @@ const
             m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3]
           );
         }
-    },/*
+    },
+    BLACK   = tuple.color(0, 0, 0),
+    WHITE   = tuple.color(1, 1, 1),
+    RED     = tuple.color(1, 0, 0),
+    GREEN   = tuple.color(0, 1, 0),
+    BLUE    = tuple.color(0, 0, 1),
+    YELLOW  = tuple.color(1, 1, 0),
+    CYAN    = tuple.color(0, 1, 1),
+    MAGENTA = tuple.color(1, 0, 1),
+    ORIGIN = tuple.point(0, 0, 0),
+    /*
     tuple = {
         //constructors
         new: (x, y, z, w) => Float32Array.of(x, y, z, w),
@@ -352,86 +362,6 @@ const
             ]);
         }
     },
-    ray = (function() {
-
-        const _new = (o, d) => {
-            return {origin: o, direction: d};
-        };
-
-        return {
-            new: _new,
-            position: (ray, t) => { return tuple.add(ray.origin, tuple.times(ray.direction, t)); },
-            transform: (ray, m) => { return _new(tuple.multiply(m, ray.origin), tuple.multiply(m, ray.direction)); },
-            prepare: (intersection, r) => { //NB this might belong somewhere else - the xs list, world, ray, Shape?
-                //TODO turn round args?
-                const
-                    p = ray.position(r, intersection.t),
-                    n = sphere.normal(intersection.obj, p),  //normal should be a method of obj.
-                    e = tuple.negate(r.direction),
-                    inside = tuple.dot(n, e) < 0,
-                    nv = inside ? tuple.negate(n) : n;
-                return {
-                    t: intersection.t,
-                    obj: intersection.obj,
-                    point: p,
-                    overPoint: tuple.add(p, tuple.times(nv, Number.EPSILON * 200)),
-                    eyev: e,
-                    normalv: nv,
-                    inside: inside 
-                };
-            }
-        };
-    })(),
-    light = {
-        new: (p, c) => {
-            return {position: p, intensity: c};
-        },
-    },
-    material = {
-        new: () => {
-            return {color: tuple.color(1, 1, 1), ambient: 0.1, diffuse: 0.9, specular: 0.9, shininess: 200};
-        }
-    },
-    sphere = {
-        new: () => { return {p: tuple.point(0, 0, 0), transform: m4x4.identity(), material: material.new()}; },
-        intersects: (s, r) => { 
-            const
-                r2 = ray.transform(r, m4x4.inverse(s.transform)),
-                sphere2 = tuple.subtract(r2.origin, tuple.point(0, 0, 0)),
-                a = tuple.dot(r2.direction, r2.direction),
-                b = 2 * tuple.dot(r2.direction, sphere2),
-                c = tuple.dot(sphere2, sphere2) -1,
-                d = b * b - 4 * a * c;      
-            return (d < 0) ? [] : [{obj: s, t: (-b - Math.sqrt(d))/(2*a)}, {obj: s, t: (-b + Math.sqrt(d))/(2*a)}].sort((a,b) => {return a.t < B.t ? -1 : 1; }); 
-        },
-        normal: (s, p) => { 
-            var result;
-            //map p to object space
-            var q = tuple.multiply(m4x4.inverse(s.transform), p);
-            result = tuple.normalize(tuple.subtract(q, tuple.point(0,0,0))); 
-            //map normal (result) back to world space 
-            result = tuple.multiply(m4x4.transpose(m4x4.inverse(s.transform)), result);
-            result[W] = 0;
-            //return normalized
-            return tuple.normalize(result);
-        }/*,
-        prepare: (intersection, r) => {
-            //NB this might belong somewhere else - the ray or the xs list
-            const
-                p = ray.position(r, intersection.t),
-                n = sphere.normal(intersection.obj, p),
-                e = tuple.negate(r.direction),
-                inside = tuple.dot(n, e) < 0;
-            return {
-                t: intersection.t,
-                obj: intersection.obj,
-                point: p,
-                eyev: e,
-                normalv: inside ? tuple.negate(n) : n,
-                inside: inside 
-            };
-        }*/
-    },
     hit = (xs) => {
         //assumes xs is already in ascending order
         return xs.find(x => x.t > 0);
@@ -449,8 +379,8 @@ const
         var
             diffuse, specular;    
         if (d < 0) {
-            diffuse = black;
-            specular = black;
+            diffuse = BLACK;
+            specular = BLACK;
         }
         else {
             diffuse = tuple.times(c, material.diffuse * d);
@@ -458,12 +388,10 @@ const
                 reflectv = tuple.reflect(tuple.negate(lightv), normalv),
                 reflect_eye = tuple.dot(reflectv, eyev);
             if (reflect_eye <= 0) {
-                specular = black;
+                specular = BLACK;
             }
             else {
-                const
-                    factor = Math.pow(reflect_eye, material.shininess);
-                specular = tuple.times(light.intensity, material.specular * factor);
+                specular = tuple.times(light.intensity, material.specular * Math.pow(reflect_eye, material.shininess));
             }
         }
         //console.log('/lighting()', ambient, diffuse, specular);console.groupEnd();
@@ -482,12 +410,145 @@ const
             h = hit(xs);
         if (h) {
             const
-                comps = ray.prepare(h, r);
+                comps = r.prepare(h);
             result = shadeHit(world, comps); 
         }
         return result;
     },
-    
+
+    Ray = (origin, direction) => {
+
+        function position(t) {
+            return tuple.add(origin, tuple.times(direction, t));
+        }
+
+        return {
+            origin: origin, 
+            direction: direction,
+            position: position,
+            transform: (m) => { return Ray(tuple.multiply(m, origin), tuple.multiply(m, direction)); },
+            prepare: (intersection) => { //NB this might belong somewhere else - the xs list, world, ray, Shape?
+                const
+                    p = position(intersection.t),
+                    n = intersection.obj.normal(p),  //normal should be a method of obj.
+                    e = tuple.negate(direction),
+                    inside = tuple.dot(n, e) < 0,
+                    nv = inside ? tuple.negate(n) : n;
+                return {
+                    t: intersection.t,
+                    obj: intersection.obj,
+                    point: p,
+                    overPoint: tuple.add(p, tuple.times(nv, Number.EPSILON * 200)),
+                    eyev: e,
+                    normalv: nv,
+                    inside: inside 
+                };
+            }
+        };
+    },
+    Light =  (p, c) => {
+        return {position: p, intensity: c};
+    },   
+    Material = (color, ambient, diffuse, specular, shininess) => {
+        color = color ? color : tuple.color(1, 1, 1);
+        ambient = ambient ? ambient : 0.1; 
+        diffuse = diffuse ? diffuse : 0.9;
+        specular = specular ? specular : 0.9;
+        shininess = shininess ? shininess : 200;
+        return {
+            color, 
+            ambient, 
+            diffuse, 
+            specular, 
+            shininess
+        };
+    }, 
+    Patterns = {
+
+    },
+    Shape = (material, transform) => {
+        material = material ? material : Material();
+        transform = transform ? transform : m4x4.identity();
+        var
+            inverse = m4x4.inverse(transform),
+            self = {
+                get material() { return material; },
+                set material(value) { material = value; },
+                get transform() { return transform; },
+                set transform(value) { 
+                    transform = value; 
+                    inverse = m4x4.inverse(transform);
+                },
+                get _inverse() { return inverse; },
+                _intersects: (ray2) => { //abstract 
+                    return [];
+                },
+                intersects: (ray) => {
+                    const
+                        r2 = ray.transform(self._inverse);
+                    self.debug = {
+                        origin: r2.origin,
+                        direction: r2.direction
+                    };    
+                    return self._intersects(r2); 
+                },
+                _normal: (oPoint) => {
+                    return tuple.normalize(tuple.vector(oPoint[X], oPoint[Y], oPoint[Z]));
+                },
+                normal: (point) => {
+                    var
+                        //map point into object space
+                        oPoint = tuple.multiply(self._inverse, point),
+                        oNormal = self._normal(oPoint),
+                        //map normal back to world space 
+                        result = tuple.multiply(m4x4.transpose(self._inverse), oNormal);
+                    result[W] = 0;
+                    //return normalized
+                    return tuple.normalize(result);
+                } 
+            };
+        return self;
+    },
+    Sphere = (material, transform) => {
+        var
+            self = Shape(material, transform);
+        self._intersects = (ray2) => {
+            const                
+                sphere2 = tuple.subtract(ray2.origin, tuple.point(0, 0, 0)),
+                a = tuple.dot(ray2.direction, ray2.direction),
+                b = 2 * tuple.dot(ray2.direction, sphere2),
+                c = tuple.dot(sphere2, sphere2) -1,
+                d = b * b - 4 * a * c;      
+            return (d < 0) ? [] : [{obj: self, t: (-b - Math.sqrt(d))/(2*a)}, {obj: self, t: (-b + Math.sqrt(d))/(2*a)}].sort((a,b) => {return a.t < b.t ? -1 : 1; }); 
+        };      
+        self._normal = (oPoint) => {
+            return tuple.normalize(tuple.subtract(oPoint, ORIGIN));
+        }; 
+        return self;
+    },
+    Plane = (material, transform) => {
+        var
+            self = Shape(material, transform);
+        self._intersects = (oRay) => {
+            return Math.abs(oRay.direction[Y]) < (Number.EPSILON * 1) ? [] : [{obj: self, t: -oRay.origin[Y]/oRay.direction[Y]}];
+        };    
+        self._normal = (oPoint) => {
+            return tuple.vector(0, 1, 0);
+        };
+        return self;
+    },
+    Cube = (material, transform) => {
+        var
+            self = Shape(material, transform);
+            
+        return self;
+    },
+    Cylinder = (material, transform) => {
+        var
+            self = Shape(material, transform);
+            
+        return self;
+    },
     World = (function() {
         return () => {
             var
@@ -498,7 +559,7 @@ const
                 //console.group('World.intersect');console.log(ray);
                 var result = [];
                 objects.forEach(o => {
-                        const xs = sphere.intersects(o, ray);
+                        const xs = o.intersects(ray);
                     if (xs && xs.length) {
                         result = result.concat(...xs);
                     }
@@ -521,7 +582,7 @@ const
                         v = tuple.subtract(lights[0].position, point),
                         //distance = tuple.magnitude(v),
                         //direction = tuple.normalize(v),
-                        h = hit(intersect(ray.new(point, tuple.normalize(v))));
+                        h = hit(intersect(Ray(point, tuple.normalize(v))));
                     return !!(h && (h.t < tuple.magnitude(v)));
                 }
 
@@ -531,15 +592,15 @@ const
     DefaultWorld = () => {
         const
             w = World(),
-            s1 = sphere.new(),
-            s2 = sphere.new();
+            s1 = Sphere(),
+            s2 = Sphere();
         s1.material.color = tuple.color(0.8, 1, 0.6);
         s1.material.diffuse = 0.7;
         s1.material.specular = 0.2;
         s2.transform = m4x4.scale(0.5, 0.5, 0.5);
         w.objects.push(s1);
         w.objects.push(s2);
-        w.lights.push(light.new(tuple.point(-10, 10, -10), tuple.color(1, 1, 1)));
+        w.lights.push(Light(tuple.point(-10, 10, -10), tuple.color(1, 1, 1)));
         return w;
     },
     Camera = (() => {
@@ -551,18 +612,19 @@ const
                 halfHeight = (aspect >= 1) ? half / aspect : half,
                 pixelSize = halfWidth * 2 / hsize;
             var
-                _transform = m4x4.identity();
+                _transform = m4x4.identity(),
+                _inverse = m4x4.identity();
             const
                 rayFromPixel = (x, y) => {
                     const
-                    xoffset = (x + 0.5) * pixelSize,
-                    yoffset = (y + 0.5) * pixelSize,
-                    worldX = halfWidth - xoffset,
-                    worldY = halfHeight - yoffset,
-                    pixel = tuple.multiply(m4x4.inverse(_transform), tuple.point(worldX, worldY, -1)),
-                    origin = tuple.multiply(m4x4.inverse(_transform), tuple.point(0, 0, 0)),
-                    direction = tuple.normalize(tuple.subtract(pixel, origin));
-                    return ray.new(origin, direction);
+                        xoffset = (x + 0.5) * pixelSize,
+                        yoffset = (y + 0.5) * pixelSize,
+                        worldX = halfWidth - xoffset,
+                        worldY = halfHeight - yoffset,
+                        pixel = tuple.multiply(_inverse/*m4x4.inverse(_transform)*/, tuple.point(worldX, worldY, -1)),
+                        origin = tuple.multiply(_inverse/*m4x4.inverse(_transform)*/, tuple.point(0, 0, 0)),
+                        direction = tuple.normalize(tuple.subtract(pixel, origin));
+                    return Ray(origin, direction);
                 };
 
             return {
@@ -570,7 +632,10 @@ const
                 vsize: vsize,
                 fieldOfView: fieldOfView,
                 get transform() { return _transform; },
-                set transform(value) { _transform = value; },
+                set transform(value) { 
+                    _transform = value; 
+                    _inverse = m4x4.inverse(_transform);
+                },
                 pixelSize: pixelSize,
                 rayFromPixel: rayFromPixel,
                 render: (world) => {
@@ -603,18 +668,32 @@ export default {
     G,
     B,
     tuple,
+    BLACK,
+    WHITE,
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    CYAN,
+    MAGENTA,
+    ORIGIN,
     m2x2,
     m3x3,
     m4x4,
-    ray,
-    light,
-    material,
-    sphere,
     hit,
     lighting,
     shadeHit,
     colorAt,
     // more OO style world classes/objects
+    Ray,
+    Light,
+    Material,
+    Patterns,
+    Shape,
+    Sphere,
+    Plane,
+    Cube,
+    Cylinder,
     World,
     DefaultWorld,
     Camera

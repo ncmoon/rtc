@@ -247,113 +247,113 @@ function testChapter5() {
         const
             p = lib.tuple.point(1, 2, 3),
             v = lib.tuple.vector(4, 5, 6),
-            r = lib.ray.new(p, v);
+            r = lib.Ray(p, v);
         assert(isEqual(r.origin, p) && isEqual(r.direction, v), 'ray.new(1)');
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(2, 3, 4), lib.tuple.vector(1, 0, 0));
-        assert(isEqual(lib.ray.position(r, 0), lib.tuple.point(2, 3, 4)), 'ray.position(1)');
-        assert(isEqual(lib.ray.position(r, 1), lib.tuple.point(3, 3, 4)), 'ray.position(2)');
-        assert(isEqual(lib.ray.position(r, -1), lib.tuple.point(1, 3, 4)), 'ray.position(3)');
-        assert(isEqual(lib.ray.position(r, 2.5), lib.tuple.point(4.5, 3, 4)), 'ray.position(4)');
+            r = lib.Ray(lib.tuple.point(2, 3, 4), lib.tuple.vector(1, 0, 0));
+        assert(isEqual(r.position(0), lib.tuple.point(2, 3, 4)), 'ray.position(1)');
+        assert(isEqual(r.position(1), lib.tuple.point(3, 3, 4)), 'ray.position(2)');
+        assert(isEqual(r.position(-1), lib.tuple.point(1, 3, 4)), 'ray.position(3)');
+        assert(isEqual(r.position(2.5), lib.tuple.point(4.5, 3, 4)), 'ray.position(4)');
     })();
 
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0, 0, -5), lib.tuple.vector(0, 0, 1)),
-            s = lib.sphere.new(),
-            xs = lib.sphere.intersects(s, r);
+            r = lib.Ray(lib.tuple.point(0, 0, -5), lib.tuple.vector(0, 0, 1)),
+            s = lib.Sphere(),
+            xs = s.intersects(r);
         assert((xs.length == 2) && (xs[0].t == 4) && (xs[1].t == 6), 'sphere.intersects(1)', xs);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0, 1, -5), lib.tuple.vector(0, 0, 1)),
-            s = lib.sphere.new(),
-            xs = lib.sphere.intersects(s, r);
+            r = lib.Ray(lib.tuple.point(0, 1, -5), lib.tuple.vector(0, 0, 1)),
+            s = lib.Sphere(),
+            xs = s.intersects(r);
         assert((xs.length == 2) && (xs[0].t == 5) && (xs[1].t == 5), 'sphere.intersects(2)', xs);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0, 2, -5), lib.tuple.vector(0, 0, 1)),
-            s = lib.sphere.new(),
-            xs = lib.sphere.intersects(s, r);
+            r = lib.Ray(lib.tuple.point(0, 2, -5), lib.tuple.vector(0, 0, 1)),
+            s = lib.Sphere(),
+            xs = s.intersects(r);
         assert(xs.length == 0, 'sphere.intersects(3)', xs);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0, 0, 0), lib.tuple.vector(0, 0, 1)),
-            s = lib.sphere.new(),
-            xs = lib.sphere.intersects(s, r);
+            r = lib.Ray(lib.tuple.point(0, 0, 0), lib.tuple.vector(0, 0, 1)),
+            s = lib.Sphere(),
+            xs = s.intersects(r);
         assert((xs.length == 2) && (xs[0].t == -1) && (xs[1].t == 1), 'sphere.intersects(4)', xs);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0, 0, 5), lib.tuple.vector(0, 0, 1)),
-            s = lib.sphere.new(),
-            xs = lib.sphere.intersects(s, r);
+            r = lib.Ray(lib.tuple.point(0, 0, 5), lib.tuple.vector(0, 0, 1)),
+            s = lib.Sphere(),
+            xs = s.intersects(r);
         assert((xs.length == 2) && (xs[0].t == -6) && (xs[1].t == -4), 'sphere.intersects(5)', xs);
     })();
 
     (function() {
         const
-            s = lib.sphere.new(),
+            s = lib.Sphere(),
             xs = [{obj: s, t: 1}, {obj: s, t: 2}];
         assert(lib.hit(xs).t == 1, 'hit(1)', xs);
     })();
     (function() {
         const
-            s = lib.sphere.new(),
+            s = lib.Sphere(),
             xs = [{obj: s, t: -1}, {obj: s, t: 1}];
         assert(lib.hit(xs).t == 1, 'hit(2)', xs);
     })();
     (function() {
         const
-            s = lib.sphere.new(),
+            s = lib.Sphere(),
             xs = [{obj: s, t: -2}, {obj: s, t: -1}];
         assert(lib.hit(xs) === undefined, 'hit(3)', xs);
     })();
 
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(1, 2, 3), lib.tuple.vector(0, 1, 0)),
+            r = lib.Ray(lib.tuple.point(1, 2, 3), lib.tuple.vector(0, 1, 0)),
             m = lib.m4x4.translate(3,4,5),
-            r2 = lib.ray.transform(r, m);
+            r2 = r.transform(m);
         assert(isEqual(r2.origin, lib.tuple.point(4,6,8)) && isEqual(r2.direction, lib.tuple.vector(0,1,0)), 'ray.transform(1)', r2);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(1, 2, 3), lib.tuple.vector(0, 1, 0)),
+            r = lib.Ray(lib.tuple.point(1, 2, 3), lib.tuple.vector(0, 1, 0)),
             m = lib.m4x4.scale(2,3,4),
-            r2 = lib.ray.transform(r, m);
+            r2 = r.transform(m);
         assert(isEqual(r2.origin, lib.tuple.point(2, 6, 12)) && isEqual(r2.direction, lib.tuple.vector(0,3,0)), 'ray.transform(2)', r2);
     })();
 
     (function() {
         const
-            s = lib.sphere.new(),
+            s = lib.Sphere(),
             t = lib.m4x4.translate(2, 3, 4);
         s.transform = t;
         assert(isEqual(s.transform, t), 'sphere.transform(1)');
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0,0,-5), lib.tuple.vector(0,0,1)),
-            s = lib.sphere.new(),
+            r = lib.Ray(lib.tuple.point(0,0,-5), lib.tuple.vector(0,0,1)),
+            s = lib.Sphere(),
             t = lib.m4x4.scale(2, 2, 2);
         s.transform = t;
         const
-            xs = lib.sphere.intersects(s, r);
+            xs = s.intersects(r);
         assert((xs.length == 2) && (xs[0].t == 3) && (xs[1].t == 7), 'sphere.transform(2)', xs);
     })();
     (function() {
         const
-            r = lib.ray.new(lib.tuple.point(0,0,-5), lib.tuple.vector(0,0,1)),
-            s = lib.sphere.new(),
+            r = lib.Ray(lib.tuple.point(0,0,-5), lib.tuple.vector(0,0,1)),
+            s = lib.Sphere(),
             t = lib.m4x4.translate(5, 0, 0);
         s.transform = t;
         const
-            xs = lib.sphere.intersects(s, r);
+            xs = s.intersects(r);
         assert(xs.length == 0, 'sphere.transform(3)', xs);
     })();
 } //testChapter5
