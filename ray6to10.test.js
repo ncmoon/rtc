@@ -87,7 +87,7 @@ function testChapter6() {
             eyev = lib.tuple.vector(0, 0, -1),
             normalv = lib.tuple.vector(0, 0, -1),
             l = lib.Light(lib.tuple.point(0,0,-10), lib.tuple.color(1,1,1)),
-            r = lib.lighting(m, l, p, eyev, normalv);
+            r = lib.lighting(undefined, m, l, p, eyev, normalv);
         assert(isEqual(r, lib.tuple.color(1.9,1.9,1.9)), 'phong(3)', r);
     })();
     (function() {
@@ -97,7 +97,7 @@ function testChapter6() {
             eyev = lib.tuple.vector(0, Math.sqrt(2)/2, -Math.sqrt(2)/2),
             normalv = lib.tuple.vector(0, 0, -1),
             l = lib.Light(lib.tuple.point(0,0,-10), lib.tuple.color(1,1,1)),
-            r = lib.lighting(m, l, p, eyev, normalv);
+            r = lib.lighting(undefined, m, l, p, eyev, normalv);
         assert(isEqual(r, lib.tuple.color(1,1,1)), 'phong(4)', r);
     })();
     (function() {
@@ -107,7 +107,7 @@ function testChapter6() {
             eyev = lib.tuple.vector(0, 0, -1),
             normalv = lib.tuple.vector(0, 0, -1),
             l = lib.Light(lib.tuple.point(0,10,-10), lib.tuple.color(1,1,1)),
-            r = lib.lighting(m, l, p, eyev, normalv);
+            r = lib.lighting(undefined, m, l, p, eyev, normalv);
         assert(isEqual(r, lib.tuple.color(0.7363961030678927, 0.7363961030678927, 0.7363961030678927)), 'phong(5)', r);
     })();
     (function() {
@@ -117,7 +117,7 @@ function testChapter6() {
             eyev = lib.tuple.vector(0, -Math.sqrt(2)/2, -Math.sqrt(2)/2),
             normalv = lib.tuple.vector(0, 0, -1),
             l = lib.Light(lib.tuple.point(0,10,-10), lib.tuple.color(1,1,1)),
-            r = lib.lighting(m, l, p, eyev, normalv);
+            r = lib.lighting(undefined, m, l, p, eyev, normalv);
         assert(isEqual(r, lib.tuple.color(1.6363961030678928, 1.6363961030678928, 1.6363961030678928)), 'phong(6)', r);
     })();
     (function() {
@@ -127,7 +127,7 @@ function testChapter6() {
             eyev = lib.tuple.vector(0, 0, -1),
             normalv = lib.tuple.vector(0, 0, -1),
             l = lib.Light(lib.tuple.point(0,0,10), lib.tuple.color(1,1,1)),
-            r = lib.lighting(m, l, p, eyev, normalv);
+            r = lib.lighting(undefined, m, l, p, eyev, normalv);
         assert(isEqual(r, lib.tuple.color(0.1, 0.1, 0.1)), 'phong(7)', r);
     })();
 } //testChapter6
@@ -192,7 +192,7 @@ function testChapter7() {
             i = {t: 4, obj: s}; //intersection
         const
             comps = r.prepare(i),
-            c = lib.shadeHit(w, comps);
+            c = lib.shadeHit(w, undefined, comps);
         assert(isEqual(c, lib.tuple.color(0.38066119308103435, 0.47582649135129296, 0.28549589481077575)), 'shading(1)', comps, c);
     })();
     (function() {
@@ -204,7 +204,7 @@ function testChapter7() {
         w.lights[0] = lib.Light(lib.tuple.point(0, 0.25, 0), lib.tuple.color(1,1,1));
         const
             comps = r.prepare(i),
-            c = lib.shadeHit(w, comps);
+            c = lib.shadeHit(w, undefined, comps);
         assert(isEqual(c, lib.tuple.color(0.9049844720832575, 0.9049844720832575, 0.9049844720832575)), 'shading(2)', comps, c);
     })();
 
@@ -325,7 +325,7 @@ function testChapter8() {
             eyev = lib.tuple.vector(0,0,-1),
             normalv = lib.tuple.vector(0,0,-1),
             light = lib.Light(lib.tuple.point(0,0,-10), lib.tuple.color(1,1,1)),
-            result = lib.lighting(m, light, p, eyev, normalv, true);
+            result = lib.lighting(undefined, m, light, p, eyev, normalv, true);
         assert(isEqual(result, lib.tuple.color(0.1,0.1,0.1)), 'shadows(1)', result);
     })();
 
@@ -365,7 +365,7 @@ function testChapter8() {
         const
             r = lib.Ray(lib.tuple.point(0, 0, 5), lib.tuple.vector(0, 0, 1)),
             i = {t: 4, obj: s2},
-            c = lib.shadeHit(w, r.prepare(i));    
+            c = lib.shadeHit(w, undefined, r.prepare(i));    
         assert(isEqual(c, lib.tuple.color(0.1, 0.1, 0.1)), 'shadows(6)', c);
     })();
 
@@ -480,7 +480,145 @@ function testChapter9() {
 
 function testChapter10() {
     //Patterns
+    (function() {
+        const
+            pattern = lib.Patterns.Stripe(lib.WHITE, lib.BLACK);
+        assert(isEqual(pattern.a, lib.WHITE) && isEqual(pattern.b, lib.BLACK), 'Pattern(1)', pattern);
+    })();    
+    (function() {
+        const
+            pattern = lib.Patterns.Stripe(lib.WHITE, lib.BLACK);
+        assert(isEqual(pattern._at(lib.tuple.point(0, 0, 0)), lib.WHITE) && isEqual(pattern._at(lib.tuple.point(0, 1, 0)), lib.WHITE) && 
+            isEqual(pattern._at(lib.tuple.point(0, 2, 0)), lib.WHITE), 'Pattern(2)', pattern);
+    })();    
+    (function() {
+        const
+            pattern = lib.Patterns.Stripe(lib.WHITE, lib.BLACK);
+        assert(isEqual(pattern._at(lib.tuple.point(0, 0, 0)), lib.WHITE) && isEqual(pattern._at(lib.tuple.point(0, 0, 1)), lib.WHITE) && 
+            isEqual(pattern._at(lib.tuple.point(0, 0, 2)), lib.WHITE), 'Pattern(3)', pattern);
+    })();    
+    (function() {
+        const
+            pattern = lib.Patterns.Stripe(lib.WHITE, lib.BLACK);
+        assert(isEqual(pattern._at(lib.tuple.point(0, 0, 0)), lib.WHITE) && isEqual(pattern._at(lib.tuple.point(0.9, 0, 0)), lib.WHITE) && 
+            isEqual(pattern._at(lib.tuple.point(1, 0, 0)), lib.BLACK), 'Pattern(4)', pattern._at(lib.tuple.point(1, 0, 0)));
+        assert(isEqual(pattern._at(lib.tuple.point(-0.1, 0, 0)), lib.BLACK) && 
+            isEqual(pattern._at(lib.tuple.point(-1, 0, 0)), lib.BLACK) && isEqual(pattern._at(lib.tuple.point(-1.1, 0, 0)), lib.WHITE), 
+            'Pattern(5)', pattern._at(lib.tuple.point(-0.1, 0, 0)));
+    })();    
+ 
+    (function() {
+        const
+            material = lib.Material(lib.WHITE, 1, 0, 0, 0, lib.Patterns.Stripe(lib.WHITE, lib.BLACK)),
+            eyev = lib.tuple.vector(0, 0, -1),
+            normalv = lib.tuple.vector(0, 0, -1),
+            light = lib.Light(lib.tuple.point(0, 0, -10), lib.WHITE),
+            c1 = lib.lighting(lib.Sphere(), material, light, lib.tuple.point(0.9,0,0), eyev, normalv, false),
+            c2 = lib.lighting(lib.Sphere(), material, light, lib.tuple.point(1.1,0,0), eyev, normalv, false);
+        assert(isEqual(c1, lib.WHITE), 'Pattern(6)', c1);
+        assert(isEqual(c2, lib.BLACK), 'Pattern(7)', c2);
+    })(); 
 
+    (function() {
+        const
+            s = lib.Sphere(
+                lib.Material(lib.WHITE, 1, 0, 0, 0, lib.Patterns.Stripe(lib.WHITE, lib.BLACK)), 
+                lib.m4x4.scale(2,2,2)
+            ),
+            c = s.material.pattern.at(s, lib.tuple.point(1.5,0,0));
+        assert(isEqual(c, lib.WHITE), 'Pattern(8)', c);
+    })();  
+    (function() {
+        const
+            s = lib.Sphere(
+                lib.Material(lib.WHITE, 1, 0, 0, 0, lib.Patterns.Stripe(lib.WHITE, lib.BLACK, lib.m4x4.scale(2,2,2)))
+            ),
+            c = s.material.pattern.at(s, lib.tuple.point(1.5, 0, 0));
+        assert(isEqual(c, lib.WHITE), 'Pattern(9)', c);
+    })();  
+    (function() {
+        const
+            s = lib.Sphere(
+                lib.Material(lib.WHITE, 1, 0, 0, 0, lib.Patterns.Stripe(lib.WHITE, lib.BLACK, lib.m4x4.translate(0.5,0,0))), 
+                lib.m4x4.scale(2,2,2)
+            ),
+            c = s.material.pattern.at(s, lib.tuple.point(2.5,0,0));
+        assert(isEqual(c, lib.WHITE), 'Pattern(10)', c);
+    })();  
+
+
+    (function() {
+        const
+            p = lib.Patterns.Abstract();
+        assert(isEqual(p.transform, lib.m4x4.identity()), 'Abstract(1)', p);
+    })();  
+    (function() {
+        const
+            p = lib.Patterns.Abstract(null, null, lib.m4x4.translate(1,2,3));
+        assert(isEqual(p.transform, lib.m4x4.translate(1,2,3)), 'Abstract(2)', p);
+    })();  
+
+    (function() {
+        const
+            s = lib.Sphere(undefined, lib.m4x4.scale(2, 2, 2)),
+            p = lib.Patterns.Abstract(null, null),
+            c = p.at(s, lib.tuple.point(2, 3, 4));
+        assert(isEqual(c, lib.tuple.color(1, 1.5, 2)), 'Abstract(3)', p, c);
+    })();
+    (function() {
+        const
+            s = lib.Sphere(),
+            p = lib.Patterns.Abstract(null, null, lib.m4x4.scale(2, 2, 2)),
+            c = p.at(s, lib.tuple.point(2, 3, 4));
+        assert(isEqual(c, lib.tuple.color(1, 1.5, 2)), 'Abstract(4)', p, c);
+    })();
+    (function() {
+        const
+            s = lib.Sphere(undefined, lib.m4x4.scale(2, 2, 2)),
+            p = lib.Patterns.Abstract(null, null, lib.m4x4.translate(0.5, 1, 1.5)),
+            c = p.at(s, lib.tuple.point(2.5, 3, 3.5));
+        assert(isEqual(c, lib.tuple.color(0.75, 0.5, 0.25)), 'Abstract(5)', p, c);
+    })();
+
+    (function() {
+        const
+            p = lib.Patterns.Gradient(lib.WHITE, lib.BLACK);
+        assert(isEqual(p._at(lib.tuple.point(0.25,0,0)), lib.tuple.color(0.75, 0.75, 0.75)), 'Gradient(1)', p._at(lib.tuple.point(0.25,0,0)));
+        assert(isEqual(p._at(lib.tuple.point(0.5,0,0)), lib.tuple.color(0.5, 0.5, 0.5)), 'Gradient(2)', p._at(lib.tuple.point(0.5,0,0)));
+        assert(isEqual(p._at(lib.tuple.point(0.75,0,0)), lib.tuple.color(0.25, 0.25, 0.25)), 'Gradient(3)', p._at(lib.tuple.point(0.75,0,0)));
+    })();
+
+    (function() {
+        const
+            p = lib.Patterns.Ring(lib.WHITE, lib.BLACK);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 0)), lib.WHITE), 'Ring(1)', p);
+        assert(isEqual(p._at(lib.tuple.point(1, 0, 0)), lib.BLACK), 'Ring(2)', p);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 1)), lib.BLACK), 'Ring(3)', p);
+        assert(isEqual(p._at(lib.tuple.point(0.708, 0, 0.708)), lib.BLACK), 'Ring(4)', p);
+    })();
+
+    
+    (function() {
+        const
+            p = lib.Patterns.Checker(lib.WHITE, lib.BLACK);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 0)), lib.WHITE), 'Checker(1)', p);
+        assert(isEqual(p._at(lib.tuple.point(0.99, 0, 0)), lib.WHITE), 'Checker(2)', p);
+        assert(isEqual(p._at(lib.tuple.point(1.01, 0, 0)), lib.BLACK), 'Checker(3)', p);
+    })();
+    (function() {
+        const
+            p = lib.Patterns.Checker(lib.WHITE, lib.BLACK);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 0)), lib.WHITE), 'Checker(4)', p);
+        assert(isEqual(p._at(lib.tuple.point(0, 0.99, 0)), lib.WHITE), 'Checker(5)', p);
+        assert(isEqual(p._at(lib.tuple.point(0, 1.01, 0)), lib.BLACK), 'Checker(6)', p);
+    })();
+    (function() {
+        const
+            p = lib.Patterns.Checker(lib.WHITE, lib.BLACK);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 0)), lib.WHITE), 'Checker(7)', p);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 0.99)), lib.WHITE), 'Checker(8)', p);
+        assert(isEqual(p._at(lib.tuple.point(0, 0, 1.01)), lib.BLACK), 'Checker(9)', p);
+    })();
 } //testChapter10
 
 

@@ -366,18 +366,18 @@ const
         //assumes xs is already in ascending order
         return xs.find(x => x.t > 0);
     },
-    lighting = (material, light, point, eyev, normalv, inShadow) => {
+    lighting = (shape, material, light, point, eyev, normalv, inShadow) => {
         //console.group('lighting()');console.log(material, light, point, eyev, normalv);
         //TODO if inShadow - no need to calculate diffuse, specular
         const
-            black = tuple.color(0, 0, 0),
-            c = tuple.product(material.color, light.intensity),
+            c = tuple.product(material.pattern ? /*material.pattern._at(point)*/material.pattern.at(shape, point) : material.color, light.intensity),
             lightv = tuple.normalize(tuple.subtract(light.position, point)),
             ambient = tuple.times(c, material.ambient),
             d = tuple.dot(lightv, normalv);
-        //console.log(c, material.color, light.intensity);    
+        //if (material.pattern) console.log(c, material.ambient, material.diffuse, material.specular);    
         var
-            diffuse, specular;    
+            diffuse, specular;   
+
         if (d < 0) {
             diffuse = BLACK;
             specular = BLACK;
@@ -397,10 +397,10 @@ const
         //console.log('/lighting()', ambient, diffuse, specular);console.groupEnd();
         return inShadow ? ambient : tuple.add(ambient, tuple.add(diffuse, specular));
     },
-    shadeHit = (world, comps) => {
+    shadeHit = (world, shape, comps) => {
         const
             shadow = world.inShadow(comps.overPoint);         
-        return lighting(comps.obj.material, world.lights[0], comps.overPoint, comps.eyev, comps.normalv, shadow);
+        return lighting(shape, comps.obj.material, world.lights[0], comps.overPoint, comps.eyev, comps.normalv, shadow);
     },
     colorAt = (world, r) => {
         var
@@ -411,7 +411,7 @@ const
         if (h) {
             const
                 comps = r.prepare(h);
-            result = shadeHit(world, comps); 
+            result = shadeHit(world, h.obj, comps); 
         }
         return result;
     },
@@ -449,22 +449,80 @@ const
     Light =  (p, c) => {
         return {position: p, intensity: c};
     },   
-    Material = (color, ambient, diffuse, specular, shininess) => {
+    Material = (color, ambient, diffuse, specular, shininess, pattern) => {
         color = color ? color : tuple.color(1, 1, 1);
-        ambient = ambient ? ambient : 0.1; 
-        diffuse = diffuse ? diffuse : 0.9;
-        specular = specular ? specular : 0.9;
-        shininess = shininess ? shininess : 200;
+        ambient = (ambient !== undefined) ? ambient : 0.1; 
+        diffuse = (diffuse  !== undefined) ? diffuse : 0.9;
+        specular = (specular  !== undefined) ? specular : 0.9;
+        shininess = (shininess  !== undefined) ? shininess : 200;
         return {
             color, 
             ambient, 
             diffuse, 
             specular, 
-            shininess
+            shininess,
+            pattern
         };
     }, 
     Patterns = {
+        Abstract: function(a, b, transform) {
+            transform = transform ? transform : m4x4.identity();
+            var
+                inverse = m4x4.inverse(transform),
+                self = {
+                    get a() { return a; },
+                    get b() { return b; },
+                    get transform() { return transform; },
+                    set transform(value) {
+                        transform = value;
+                        inverse = m4x4.inverse(transform);
+                    },
+                    _at: (pPoint) => {
+                        return tuple.color(pPoint[X], pPoint[Y], pPoint[Z]);
+                    },
+                    at: (shape, wPoint) => {
+                        // map world point into object space, then into pattern space.
+                        return self._at(tuple.multiply(inverse, tuple.multiply(shape._inverse, wPoint)));    
+                    }
+                };  
+          return self; 
+        },
+        Stripe: (a, b, transform) => {
+            var
+                self = Patterns.Abstract(a, b, transform);
 
+            function _at(pPoint) {
+                return (Math.abs(Math.floor(pPoint[X]) % 2) < 1) ? a : b; 
+            } //_at
+
+            self._at = _at;
+            return self;
+        },
+        Gradient: (a, b, transform) => {
+            var
+                self = Patterns.Abstract(a, b, transform);
+            self._at = function(pPoint) {
+                return tuple.add(a, tuple.times(tuple.subtract(b, a), pPoint[X] - Math.floor(pPoint[X]))); 
+            };
+            return self;
+        },
+        Ring: (a, b, transform) => {
+            var
+                self = Patterns.Abstract(a, b, transform);
+            self._at = function(pPoint) {
+                return ((Math.floor(Math.sqrt(pPoint[X]*pPoint[X] + pPoint[Z]*pPoint[Z])) % 2) < 1) ? a : b;
+            };
+            return self;
+        },
+        Checker: (a, b, transform) => {
+            var
+                self = Patterns.Abstract(a, b, transform);
+            self._at = function(pPoint) {
+                var delta = Math.abs(pPoint[X]) + Math.abs(pPoint[Y]) + Math.abs(pPoint[Z]);
+                return ((delta % 2) < 1) ? a : b; 
+            };
+            return self;
+        }
     },
     Shape = (material, transform) => {
         material = material ? material : Material();
@@ -659,6 +717,41 @@ const
     })();
 
 
+
+import fs from 'fs';
+import jpeg from 'jpeg-js';
+
+function asJPEG(canvas, filename) {
+
+    function clamp(x, min, max) {
+        return (x < min) ? min : (x > max) ? max : x;
+    } //clamp
+
+    const
+        nx = canvas[0].length,
+        ny = canvas.length;
+    var
+        frameData = new Buffer.alloc(nx * ny * 4);
+    var i, x, y;
+    for (y = 0; y < ny; y++) {
+        for (x = 0; x < nx; x++) {
+            i = (y * nx + x) * 4;
+            frameData[i] = 255 * clamp(canvas[y][x][R], 0, 1); // red
+            frameData[i+1] = 255 * clamp(canvas[y][x][G], 0, 1); // green
+            frameData[i+2] = 255 * clamp(canvas[y][x][B], 0, 1); // blue
+            frameData[i+3] = 0xff; // alpha - ignored in JPEGs
+            //console.log(frameData[i],frameData[i+1],frameData[i+2],frameData[i+3]);
+        }
+    }
+    var rawImageData = {
+        data: frameData, width: nx, height: ny
+    };
+    var jpegImageData = jpeg.encode(rawImageData, 100);
+    fs.writeFileSync(filename, jpegImageData.data);    
+} //asJPEG
+
+
+
 export default {
     X,
     Y,
@@ -696,5 +789,6 @@ export default {
     Cylinder,
     World,
     DefaultWorld,
-    Camera
+    Camera,
+    asJPEG
 };
