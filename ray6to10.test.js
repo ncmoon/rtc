@@ -192,7 +192,8 @@ function testChapter7() {
             i = {t: 4, obj: s}; //intersection
         const
             comps = r.prepare(i),
-            c = lib.shadeHit(w, undefined, comps);
+            //c = lib.shadeHit(w, undefined, comps);
+            c = w.shadeHit(undefined, comps);
         assert(isEqual(c, lib.tuple.color(0.38066119308103435, 0.47582649135129296, 0.28549589481077575)), 'shading(1)', comps, c);
     })();
     (function() {
@@ -204,7 +205,8 @@ function testChapter7() {
         w.lights[0] = lib.Light(lib.tuple.point(0, 0.25, 0), lib.tuple.color(1,1,1));
         const
             comps = r.prepare(i),
-            c = lib.shadeHit(w, undefined, comps);
+            //c = lib.shadeHit(w, undefined, comps);
+            c = w.shadeHit(undefined, comps);
         assert(isEqual(c, lib.tuple.color(0.9049844720832575, 0.9049844720832575, 0.9049844720832575)), 'shading(2)', comps, c);
     })();
 
@@ -212,14 +214,16 @@ function testChapter7() {
         const
             w = lib.DefaultWorld(),
             r = lib.Ray(lib.tuple.point(0, 0, -5), lib.tuple.vector(0, 1, 0)),
-            c = lib.colorAt(w, r);
+            //c = lib.colorAt(w, r);
+            c = w.colorAt(r);
         assert(isEqual(c, lib.tuple.color(0, 0, 0)), 'colorAt(1)', c);
     })();
     (function() {
         const
             w = lib.DefaultWorld(),
             r = lib.Ray(lib.tuple.point(0, 0, -5), lib.tuple.vector(0, 0, 1)),
-            c = lib.colorAt(w, r);
+            //c = lib.colorAt(w, r);
+            c = w.colorAt(r);
         assert(isEqual(c, lib.tuple.color(0.38066119308103435, 0.47582649135129296, 0.28549589481077575)), 'colorAt(2)', c);
     })();
     (function() {
@@ -229,7 +233,8 @@ function testChapter7() {
         w.objects[0].material.ambient = 1;
         w.objects[1].material.ambient = 1;        
         const    
-            c = lib.colorAt(w, r);
+            //c = lib.colorAt(w, r);
+            c = w.colorAt(r);
         assert(isEqual(c, w.objects[1].material.color), 'colorAt(3)', c, w.objects[1].material.color);
     })();
 
@@ -365,7 +370,8 @@ function testChapter8() {
         const
             r = lib.Ray(lib.tuple.point(0, 0, 5), lib.tuple.vector(0, 0, 1)),
             i = {t: 4, obj: s2},
-            c = lib.shadeHit(w, undefined, r.prepare(i));    
+            //c = lib.shadeHit(w, undefined, r.prepare(i));    
+            c = w.shadeHit(undefined, r.prepare(i));
         assert(isEqual(c, lib.tuple.color(0.1, 0.1, 0.1)), 'shadows(6)', c);
     })();
 

@@ -34,7 +34,7 @@ function isEqual(a, b) {
                 }, true);
                 }
                 catch (e) {
-                    console.assert(false, a,b);
+                    console.assert(false, 'isEqual exception:', a, b);
                 }
             }
             else if (b === null) {
@@ -350,6 +350,54 @@ function draw10() {
     lib.asJPEG(canvas, 'image10.jpg');
 } //draw10
 
+function draw11() {
+    const
+        w = lib.World(),
+        c = lib.Camera(1000, 500, Math.PI/3);
+    c.transform = lib.m4x4.viewTransform(lib.tuple.point(0, 1.5, -5), lib.tuple.point(0, 1, 0), lib.tuple.vector(0, 1, 0));
+
+    w.lights.push(
+        lib.Light(
+            lib.tuple.point(-10, 10, -10), lib.tuple.color(1, 1, 1)
+        )
+    );
+    w.objects.push(     //middle ball   
+        lib.Sphere(
+            lib.Material(lib.tuple.color(0.08, 0.08, 0.08), 0.5, 0.97, 1.02, 20, null, 1),
+            lib.m4x4.translate(-0.5, 1.5, 0.5)
+        )
+    );
+    w.objects.push(     //right ball
+        lib.Sphere(
+            lib.Material(lib.tuple.color(0.5, 1, 0.1), 1, 0.5, 0.3, 200/*, lib.Patterns.Checker(lib.MAGENTA, lib.CYAN, lib.m4x4.scale(0.1, 0.1, 0.1))*/), 
+            lib.m4x4.multiply(lib.m4x4.translate(1.5, 0.5, -0.5), lib.m4x4.scale(0.5, 0.5, 0.5))
+        )
+    );
+    w.objects.push(             //left ball 
+        lib.Sphere(
+            lib.Material(lib.BLACK, 1, 0, 0, 0, lib.Patterns.Ring(lib.MAGENTA, lib.CYAN, lib.m4x4.scale(0.1, 0.1, 0.1))), 
+            lib.m4x4.multiply(lib.m4x4.translate(-1.5, 0.2, -0.75), lib.m4x4.scale(0.33,0.33,0.33))
+        )
+    );              
+    w.objects.push(       //floor
+        lib.Plane(
+            lib.Material(lib.tuple.color(1, 0, 0), 0.3, 0.4, 1, 100, lib.Patterns.Stripe(lib.WHITE, lib.RED, lib.m4x4.scale(2.5, 1, 1)), 0.75)
+        )
+    );
+    w.objects.push( //ceiling
+        lib.Plane(
+            lib.Material(lib.tuple.color(0.5, 0.5, 1), 1, 0, 0, 0/*, lib.Patterns.Stripe(lib.BLUE, lib.WHITE, lib.m4x4.rotateY(Math.PI/4))*/),
+            lib.m4x4.translate(0, 11, 0)
+        )
+    );       
+    var
+      t0, t1, canvas;
+    t0 = performance.now();
+    canvas = c.render(w);
+    t1 = performance.now();
+    console.log(t1-t0, 'mS', 1000*500, 'rays');
+    lib.asJPEG(canvas, 'image11.jpg');
+} //draw11
 
 testChapter1();
 testChapter2();
@@ -378,7 +426,8 @@ benchmark();
 //draw6();
 //draw7();
 //draw9();
-draw10();
+//draw10();
+draw11();
 
 export {
     assert,

@@ -53,79 +53,6 @@ const
     CYAN    = tuple.color(0, 1, 1),
     MAGENTA = tuple.color(1, 0, 1),
     ORIGIN = tuple.point(0, 0, 0),
-    /*
-    tuple = {
-        //constructors
-        new: (x, y, z, w) => Float32Array.of(x, y, z, w),
-        point: (x, y, z) => { return tuple.new(x, y, z, 1); },
-        vector: (x, y, z) => { return tuple.new(x, y, z, 0); },
-        color: (r, g, b) => { return tuple.new(r, g, b, 0); },
-        //unary operators
-        negate: (a) => { return tuple.new(-a[X], -a[Y], -a[Z], -a[W]); },
-        magnitude: (v) => { return Math.sqrt(v[X]*v[X] + v[Y]*v[Y] + v[Z]*v[Z] + v[W]*v[W]); },
-        normalize: (v) => {
-            var m = tuple.magnitude(v);
-            return tuple.new(v[X]/m, v[Y]/m, v[Z]/m, v[W]/m);
-        },
-        //binary operators
-        add: (a, b) => { return tuple.new(a[X] + b[X], a[Y] + b[Y], a[Z] + b[Z], a[W] + b[W]); },
-        subtract: (a, b) => { return tuple.new(a[X] - b[X], a[Y] - b[Y], a[Z] - b[Z], a[W] - b[W]); },
-        times: (v, s) => { return tuple.new(v[X] * s, v[Y] * s, v[Z] * s, v[W] * s); },
-        divide: (v, s) => { return tuple.new(v[X] / s, v[Y] / s, v[Z] / s, v[W] / s); },
-        dot: (u, v) => u[X]*v[X] + u[Y]*v[Y] + u[Z]*v[Z] + u[W]*v[W],
-        cross: (u, v) => { return tuple.vector(u[Y]*v[Z] - u[Z]*v[Y], u[Z]*v[X] - u[X]*v[Z], u[X]*v[Y] - u[Y]*v[X]); },
-        product: (c, d) => { //shurr/hadamar product for colors
-            return tuple.color(c[R] * d[R], c[G] * d[G], c[B] * d[B]); 
-        }, 
-        multiply: (m, v) => { //pre-multiply the tuple by a matrix.
-          return tuple.new(
-            m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2] + m[0][3]*v[3],
-            m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3]*v[3],
-            m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3]*v[3],
-            m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3]
-          );
-        }
-    },
-    
-    X = 'x',
-    Y = 'y',
-    Z = 'z',
-    W = 'w',
-    R = 0,
-    G = 1,
-    B = 2,
-    tuple = {
-        //constructors
-        new: (x, y, z, w) => { return {x: x, y: y, z: z, w: w}; },
-        point: (x, y, z) => { return tuple.new(x, y, z, 1); },
-        vector: (x, y, z) => { return tuple.new(x, y, z, 0); },
-        color: (r, g, b) => { return tuple.new(r, g, b, 0); },
-        //unary operators
-        negate: (a) => { return tuple.new(-a[X], -a[Y], -a[Z], -a[W]); },
-        magnitude: (v) => { return Math.sqrt(v[X]*v[X] + v[Y]*v[Y] + v[Z]*v[Z] + v[W]*v[W]); },
-        normalize: (v) => {
-            var m = tuple.magnitude(v);
-            return tuple.new(v[X]/m, v[Y]/m, v[Z]/m, v[W]/m);
-        },
-        //binary operators
-        add: (a, b) => { return tuple.new(a[X] + b[X], a[Y] + b[Y], a[Z] + b[Z], a[W] + b[W]); },
-        subtract: (a, b) => { return tuple.new(a[X] - b[X], a[Y] - b[Y], a[Z] - b[Z], a[W] - b[W]); },
-        times: (v, s) => { return tuple.new(v[X] * s, v[Y] * s, v[Z] * s, v[W] * s); },
-        divide: (v, s) => { return tuple.new(v[X] / s, v[Y] / s, v[Z] / s, v[W] / s); },
-        dot: (u, v) => u[X]*v[X] + u[Y]*v[Y] + u[Z]*v[Z] + u[W]*v[W],
-        cross: (u, v) => { return tuple.vector(u[Y]*v[Z] - u[Z]*v[Y], u[Z]*v[X] - u[X]*v[Z], u[X]*v[Y] - u[Y]*v[X]); },
-        product: (c, d) => { //shurr/hadamar product for colors
-            return tuple.color(c[R] * d[R], c[G] * d[G], c[B] * d[B]); 
-        }, 
-        multiply: (m, v) => { //pre-multiply the tuple by a matrix.
-          return tuple.new(
-            m[0][0]*v[X] + m[0][1]*v[Y] + m[0][2]*v[Z] + m[0][3]*v[W],
-            m[1][0]*v[X] + m[1][1]*v[Y] + m[1][2]*v[Z] + m[1][3]*v[W],
-            m[2][0]*v[X] + m[2][1]*v[Y] + m[2][2]*v[Z] + m[2][3]*v[W],
-            m[3][0]*v[X] + m[3][1]*v[Y] + m[3][2]*v[Z] + m[3][3]*v[W]
-          );
-        }
-    },*/
     m2x2 = {
         new: (m) => [
             [m[0][0], m[0][1]],
@@ -311,10 +238,39 @@ const
             return m3x3.new(work.filter((n, i) => i !== r));
         },
         determinant: (m) => {
-            return m[0][0] * m4x4.coFactor(m, 0, 0) + 
-                m[0][1] * m4x4.coFactor(m, 0, 1) + 
-                m[0][2] * m4x4.coFactor(m, 0, 2) +
-                m[0][3] * m4x4.coFactor(m, 0, 3);
+            /*
+            return  m[0][0] * m4x4.coFactor(m, 0, 0) + 
+                    m[0][1] * m4x4.coFactor(m, 0, 1) + 
+                    m[0][2] * m4x4.coFactor(m, 0, 2) +
+                    m[0][3] * m4x4.coFactor(m, 0, 3);  */              
+            return  m[0][0] *  
+                        //M3determinant(m3x3.new([ [m[1][1], m[1][2], m[1][3]], [m[2][1], m[2][2], m[2][3]], [m[3][1], m[3][2], m[3][3]] ])) + 
+                        (
+                            m[1][1] *  (m[2][2] * m[3][3] - m[2][3] * m[3][2]) + 
+                            m[1][2] * -(m[2][1] * m[3][3] - m[2][3] * m[3][1]) + 
+                            m[1][3] *  (m[2][1] * m[3][2] - m[2][2] * m[3][1])
+                        ) +
+                    m[0][1] * 
+                        //-M3determinant(m3x3.new([ [m[1][0], m[1][2], m[1][3]], [m[2][0], m[2][2], m[2][3]], [m[3][0], m[3][2], m[3][3]] ])) + 
+                        -(
+                            m[1][0] *  (m[2][2] * m[3][3] - m[2][3] * m[3][2]) + 
+                            m[1][2] * -(m[2][0] * m[3][3] - m[2][3] * m[3][0]) + 
+                            m[1][3] *  (m[2][0] * m[3][2] - m[2][2] * m[3][0])
+                        ) +
+                    m[0][2] *  
+                        //M3determinant(m3x3.new([ [m[1][0], m[1][1], m[1][3]], [m[2][0], m[2][1], m[2][3]], [m[3][0], m[3][1], m[3][3]] ])) +
+                        (
+                            m[1][0] *  (m[2][1] * m[3][3] - m[2][3] * m[3][1]) + 
+                            m[1][1] * -(m[2][0] * m[3][3] - m[2][3] * m[3][0]) + 
+                            m[1][3] *  (m[2][0] * m[3][1] - m[2][1] * m[3][0])
+                        ) +
+                    m[0][3] * 
+                        //-M3determinant(m3x3.new([ [m[1][0], m[1][1], m[1][2]], [m[2][0], m[2][1], m[2][2]], [m[3][0], m[3][1], m[3][2]] ]));     
+                        -(
+                            m[1][0] *  (m[2][1] * m[3][2] - m[2][2] * m[3][1]) + 
+                            m[1][1] * -(m[2][0] * m[3][2] - m[2][2] * m[3][0]) + 
+                            m[1][2] *  (m[2][0] * m[3][1] - m[2][1] * m[3][0])
+                        );
         },
         minor: (m, r, c) => {
             return m3x3.determinant(m4x4.subMatrix(m, r, c));
@@ -397,6 +353,7 @@ const
         //console.log('/lighting()', ambient, diffuse, specular);console.groupEnd();
         return inShadow ? ambient : tuple.add(ambient, tuple.add(diffuse, specular));
     },
+    /*
     shadeHit = (world, shape, comps) => {
         const
             shadow = world.inShadow(comps.overPoint);         
@@ -404,7 +361,7 @@ const
     },
     colorAt = (world, r) => {
         var
-          result = tuple.color(0,0,0);
+          result = BLACK;
         const
             xs = world.intersect(r),
             h = hit(xs);
@@ -414,7 +371,7 @@ const
             result = shadeHit(world, h.obj, comps); 
         }
         return result;
-    },
+    },*/
 
     Ray = (origin, direction) => {
 
@@ -433,7 +390,8 @@ const
                     n = intersection.obj.normal(p),  //normal should be a method of obj.
                     e = tuple.negate(direction),
                     inside = tuple.dot(n, e) < 0,
-                    nv = inside ? tuple.negate(n) : n;
+                    nv = inside ? tuple.negate(n) : n,
+                    rv = tuple.reflect(direction, nv);
                 return {
                     t: intersection.t,
                     obj: intersection.obj,
@@ -441,6 +399,7 @@ const
                     overPoint: tuple.add(p, tuple.times(nv, Number.EPSILON * 200)),
                     eyev: e,
                     normalv: nv,
+                    reflectv: rv,
                     inside: inside 
                 };
             }
@@ -449,19 +408,21 @@ const
     Light =  (p, c) => {
         return {position: p, intensity: c};
     },   
-    Material = (color, ambient, diffuse, specular, shininess, pattern) => {
+    Material = (color, ambient, diffuse, specular, shininess, pattern, reflective) => {
         color = color ? color : tuple.color(1, 1, 1);
         ambient = (ambient !== undefined) ? ambient : 0.1; 
         diffuse = (diffuse  !== undefined) ? diffuse : 0.9;
         specular = (specular  !== undefined) ? specular : 0.9;
         shininess = (shininess  !== undefined) ? shininess : 200;
+        reflective = (reflective  !== undefined) ? reflective : 0.0;
         return {
             color, 
             ambient, 
             diffuse, 
             specular, 
             shininess,
-            pattern
+            pattern,
+            reflective
         };
     }, 
     Patterns = {
@@ -609,6 +570,8 @@ const
     },
     World = (function() {
         return () => {
+            const
+              maxDepth = 3;
             var
                 objects = [],
                 lights = [];  
@@ -627,6 +590,63 @@ const
                 return result;
             } //intersect   
 
+            function inShadow(point) {
+                const
+                    v = tuple.subtract(lights[0].position, point),
+                    //distance = tuple.magnitude(v),
+                    //direction = tuple.normalize(v),
+                    h = hit(intersect(Ray(point, tuple.normalize(v))));
+                return !!(h && (h.t < tuple.magnitude(v)));
+            } //inShadow
+
+            function _colorAt(r, depth){
+                var
+                    result = BLACK;
+                const
+                    xs = intersect(r),
+                    h = hit(xs);
+                if (h) {
+                    const
+                        comps = r.prepare(h);
+                    result = shadeHit(h.obj, r.prepare(h), depth+1); 
+                }
+                return result;
+            } //_colorAt
+
+            function shadeHit(shape, comps, depth) {
+                return (depth > maxDepth) ? BLACK : tuple.add(lighting(shape, comps.obj.material, lights[0], comps.overPoint, comps.eyev, comps.normalv, inShadow(comps.overPoint)), reflectedColor(comps, depth));
+            } //shadeHit
+
+            function reflectedColor(comps, depth) {
+                var
+                    result = BLACK;
+                if (comps.obj.material.reflective > 0)  {
+                    const
+                        ray = Ray(comps.overPoint, comps.reflectv);
+                    //console.log(colorAt(ray));
+                    result = tuple.times(_colorAt(ray, depth), comps.obj.material.reflective);
+                    //console.log(result);
+                }
+                return result;
+            } //reflectedColor
+
+            function colorAt(r){
+                /*
+                var
+                  result = BLACK;
+                const
+                    xs = intersect(r),
+                    h = hit(xs);
+                if (h) {
+                    const
+                        comps = r.prepare(h);
+                    //console.log(h, comps);
+                    result = shadeHit(h.obj, comps); 
+                }
+                return result;*/
+                return _colorAt(r, 1);
+            } //colorAt
+
             return {
                 get objects() { return objects; },
                 set objects(value) { objects = value; },
@@ -634,20 +654,15 @@ const
                 get lights() { return lights;},
                 set lights(value) { lights = value; },
                 //lights: lights,
+                shadeHit: shadeHit,
+                reflectedColor: reflectedColor,
+                colorAt: colorAt,
                 intersect: intersect,
-                inShadow: (point) => {
-                    const
-                        v = tuple.subtract(lights[0].position, point),
-                        //distance = tuple.magnitude(v),
-                        //direction = tuple.normalize(v),
-                        h = hit(intersect(Ray(point, tuple.normalize(v))));
-                    return !!(h && (h.t < tuple.magnitude(v)));
-                }
-
+                inShadow: inShadow
             };
         };
     })(),  
-    DefaultWorld = () => {
+    DefaultWorld = () => {  //TODO move this to test harness
         const
             w = World(),
             s1 = Sphere(),
@@ -705,7 +720,8 @@ const
                         row = [];
                         for (x = 0; x < hsize; x++) {
                             var ray = rayFromPixel(x, y);
-                            var color = colorAt(world, ray);
+                            //var color = colorAt(world, ray);
+                            var color = world.colorAt(ray);
                             row.push(color);
                         }
                         result.push(row);
@@ -715,7 +731,6 @@ const
             };
         };
     })();
-
 
 
 import fs from 'fs';
@@ -775,8 +790,8 @@ export default {
     m4x4,
     hit,
     lighting,
-    shadeHit,
-    colorAt,
+    //shadeHit,
+    //colorAt,
     // more OO style world classes/objects
     Ray,
     Light,
