@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- 
+      WASM Notes cheat sheet
+
+
+
+    (c)2022 Nick Moon
+    -->
+    <title>WASM</title>
+    <link rel="icon" href="/images/favicon.png" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+      h2 {
+        padding-top: 48px;
+      }
+      h3 {
+        padding-top: 36px;
+      }
+    
+      .alert {
+        border-width: 2px;
+      }
+    
+      table, table tr th, table tr td {
+        border-color: black!important;
+      }
+
+      pre {
+        background-color: #ffffcc;
+        border: thin black solid;
+      }
+    
+      .done {
+        background-color: rgba(0,255,0, 0.25);
+      }
+      .dead {
+        text-decoration: line-through;
+      }
+    </style>  
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand">WASM</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <!--li class="nav-item"><a class="nav-link" href="spec.html#">Spec</a></li>
+            <li class="nav-item"><a class="nav-link" href="to-do.html#">To-do</a></li>
+            <li class="nav-item"><a class="nav-link" href="appendix.html#">Appendix</a></li>
+            <li class="nav-item"><a class="nav-link" href="charting.html#">Charting</a></li-->
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <br /><br /><br />
+  
+    <div class="container">
+
+      <h1>WASM Notes</h1>
+
+      <section>
+        <h2>Overview</h2>
+
+
+
+        <pre>
+(module
+
+  ;; Imports from JavaScript namespace
+  (import  "console"  "log" (func  $log (param  i32  i32)))   ;; Import log function
+  (import  "js"  "mem" (memory  1))                           ;; Import 1 page of memory (54kb)
+
+  ;; Data section of our module
+  (data (i32.const 0) "Hello World from WebAssembly!")
+
+  ;; Function declaration: Exported as helloWorld(), no arguments
+  (func (export  "helloWorld")
+    i32.const 0               ;; pass offset 0 to log
+    i32.const 29              ;; pass length 29 to log (strlen of sample text)
+    call  $log
+  )
+
+)        </pre>
+
+
+
+
+        <pre>
+  var memory = new  WebAssembly.Memory({initial:1});
+
+  function  consoleLogString(offset, length) {
+    var  bytes = new  Uint8Array(memory.buffer, offset, length);
+    var  string = new  TextDecoder('utf8').decode(bytes);
+    console.log(string);
+  };
+
+  var  importObject = {
+    console: {
+      log:  consoleLogString
+    },
+    js : {
+      mem:  memory
+    }
+  };
+  
+  WebAssembly.instantiateStreaming(fetch('helloworld.wasm'), importObject)
+  .then(obj  => {
+    obj.instance.exports.helloWorld();
+  });
+        </pre>
+
+      </section>
+
+      <section>
+        <h2>.wat file format</h2>
+
+        <pre>
+(module
+  ;; Imports from JavaScript namespace - optional
+  ;; function definitions - optional
+  ;; exports to JavaScript - optional
+)       </pre>
+
+        <section>
+          <h3>imports</h3>
+          <p>can import functions and/or memory variables</p>
+          <pre>
+            (import "js" "mem" (memory 1))
+
+          </pre>
+        </section>
+        <section>
+          <h3>functions</h3>
+          <p>can define functions</p>
+
+          <pre>
+(func
+  ;;signature
+  ;;locals
+  ;;body
+)         </pre>
+          <p>The signature is zero or more params, plus an 
+            optional result entry. If result is omitted no value is returned.</p>
+
+          <pre>
+(func
+  $add 
+  (param $a i32) (param $b i32) (result i32)  ;;signature ($a:i32, $b:i32):i32
+  local.get $a                                ;; push $a
+  local.get $b                                ;; push $b
+  i32.add                                     ;; add, result now returned via stack
+)          </pre>
+
+          <pre>
+(func 
+  (export  "helloWorld")
+  i32.const 0               ;; pass offset 0 to log
+  i32.const 29              ;; pass length 29 to log (strlen of sample text)
+  call  $log
+)          </pre>
+        </section>
+        <section>
+          <h3>exports</h3>
+          <p>can export functions and/or memory variables</p>
+
+          <pre>
+(export "add" (func $add))          </pre>
+        </section>
+      </section>
+
+      <section>
+        
+      </section>
+
+    </div>
+</body>
+</html>

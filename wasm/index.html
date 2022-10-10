@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>ccc</title>
+  </head>
+  <body>
+
+    <script>
+const
+  run = async () => {
+    fetch("./hello.wasm").then(async (value) => {
+      const buf = await value.arrayBuffer();
+      console.log('bang', buf);    
+      const module = await WebAssembly.compile(buf);
+      const memory = new WebAssembly.Memory({ initial: 1 });
+      const importObject = {
+        //console: { log: consoleLogString },
+        js: { mem: memory },
+      };
+
+      const buffer = new Float32Array(importObject.js.mem.buffer);
+
+      function VectorLog(offset) {
+        console.log(buffer[offset].toFixed(8), buffer[offset+1].toFixed(8), buffer[offset+2].toFixed(8), buffer[offset+3].toFixed(8));
+      } //VectorLog 
+
+      buffer[0] = 0.1;
+      buffer[1] = 0.2;
+      buffer[2] = 0.3;
+      buffer[3] = 1;
+      buffer[4] = 0.4;
+      buffer[5] = 0.5;
+      buffer[6] = 0.6;
+      buffer[7] = 0.7;
+      //console.log(buffer, importObject.js.mem.buffer);
+
+      const instance = await WebAssembly.instantiate(module, importObject);
+
+      //console.log(instance.exports.helloWorld());
+
+      instance.exports.VectorNeg(0, 128*4);
+      VectorLog(128);
+      instance.exports.VectorAbs(128*4, 132*4);
+      VectorLog(132);
+      instance.exports.VectorSqrt(0, 136*4);
+      VectorLog(136);
+
+      instance.exports.VectorAdd(0, 16, 256*4);
+      VectorLog(256);
+      instance.exports.VectorSub(0, 16, 260*4);
+      VectorLog(260);
+      instance.exports.VectorMul(0, 16, 264*4);
+      VectorLog(264);
+      instance.exports.VectorDiv(0, 16, 268*4);
+      VectorLog(268);
+
+      instance.exports.VectorMag(0, 270*4);
+      VectorLog(270);
+      instance.exports.VectorNormalize(0, 274*4);
+      VectorLog(274);
+      instance.exports.VectorDot(0, 4*4, 278*4);
+      VectorLog(278);
+    });
+  };
+  
+  run();
+
+
+    </script>
+  </body>
+</html>

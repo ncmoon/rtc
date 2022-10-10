@@ -33,7 +33,7 @@ const
             return tuple.color(c[R] * d[R], c[G] * d[G], c[B] * d[B]); 
         }, 
         reflect: (v, n) => { //reflect v, using normal n
-          return tuple.subtract(v, tuple.times(n, 2 * tuple.dot(v, n)))
+          return tuple.subtract(v, tuple.times(n, 2 * tuple.dot(v, n)));
         },
         multiply: (m, v) => { //pre-multiply the tuple by a matrix.
           return tuple.new(
