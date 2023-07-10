@@ -68,136 +68,125 @@ NUMBERS.forEach(n => {
 });
 
 
-import { PerformanceObserver, performance } from 'node:perf_hooks';
 import lib from './ray.js';
+import { PerformanceObserver, performance } from 'node:perf_hooks';
 import {testChapter1, testChapter2, testChapter3, testChapter4, testChapter5} from './ray1to5.test.js';
-/*
 import {testChapter6, testChapter7, testChapter8, testChapter9, testChapter10} from './ray6to10.test.js';
 import {testChapter11, testChapter12, testChapter13, testChapter14, testChapter15} from './ray11to15.test.js';
-*/
 
-function testTuple() {
-    NUMBERS.forEach(n => {
-        NUMBERS.forEach(m => {
-            NUMBERS.forEach(l => {
-                NUMBERS.forEach(k => {
-                    var y = lib.tuple.new(n, m, l, k);
-                    assert(isEqual(y, [n, m, l, k]), 'expected tuple y to be:', y, n, m, l, k);
-                });
-                var p = lib.tuple.point(n, m, l);
-                assert(isEqual(p, [n, m, l, 1]), 'expected point p to be:', p, n, m, l);
-                var v = lib.tuple.vector(n, m, l);
-                assert(isEqual(v, [n, m, l, 0]), 'expected vector v to be:', v, n, m, l);
-                var w = lib.tuple.negate(v); 
-    
-                assert(isEqual(lib.tuple.add(v,w), [0,0,0,0]),'expected v + -v [0,0,0,0]', v, w, lib.tuple.add(v,w));
-                assert(isEqual(lib.tuple.add(v,v), lib.tuple.subtract(v, w)),'expected v*2 == v-w', v, w, lib.tuple.add(v,w));
-                assert(isEqual(lib.tuple.divide(lib.tuple.times(v, 0.5), 0.5), v),'expected v*5/5 === v', v, lib.tuple.divide(lib.tuple.times(v,5), 5));
-    
-                //TODO add dot/cross tests....
-    
-                assert(isEqual(w, [-n, -m, -l, 0]), 'expected negate(v) to be:', v, -n, -m, -l);
-                var u = lib.tuple.normalize(v);
-                assert(isEqual(lib.tuple.magnitude(u), ((l === 0) && (m === 0) && (n === 0)) ? NaN : 1), 'expected mag(unit vector) to be 1', l, m, n, u, lib.tuple.magnitude(u));
-                var mag = lib.tuple.magnitude(v);
-                assert(isEqual(mag, Math.sqrt(v[lib.X]**2 + v[lib.Y]**2 + v[lib.Z]**2 + v[lib.W]**2)), 'expected magnitude to match', mag, Math.sqrt(v[lib.X]^2 + v[lib.Y]^2 + v[lib.Z]^2 + v[lib.W]^2), v); //TODO find a different way to calculate mag
-                var z = lib.tuple.times(u, m);
-                //console.assert(isEqual(z, v), 'expected u * mag  to be v', v, mag, u, z, v[lib.X]-z[lib.X]);    
-            });
-        });
-    });
-} //testTuple
-
-function testM2x2() {
-  /*
-          new: (m) => [
-            [m[0][0], m[0][1]],
-            [m[1][0], m[1][1]]
-        ],
-        identity: () => {
-            return m3x3.new([
-                [1, 0],
-                [0, 1]
-            ]);
-        },
-        transpose: (m) => {
-            return m2x2.new([
-                [m[0][0], m[1][0]],
-                [m[0][1], m[1][1]]
-            ]); 
-        },
-        determinant: (m) => {
-            return m[0][0] * m[1][1] - m[0][1] * m[1][0];
-        },
-        inverse: (m) => {
-            const
-                det = m2x2.determinant(m);
-            return m2x2.new([
-                [m[1][1]/det, -m[1][0]/det], //TODO check this!
-                [-m[0][1]/det, m[0][0]/det]
-            ]);    
-        },
-        multiply: (m, n) => {
-            return m2x2.new([
-                [m[0][0] * n[0][0], m[0][1] * n[1][0]],
-                [m[1][0] * n[0][1], m[1][1] * n[1][1]]
-            ]);
-        }
-
-  
-  */
-} //testM2x2
-
-function testM3x3() {
-
-} //testM3x3
-
-function testM4x4() {
-
-} //testM4x4
-
-
-function benchmark() {
+function benchmark(lib) {
+    //const
+    //    a = lib.Vector(1,2,3), 
+    //    b = lib.Vector(4,5,6), 
+    //    c = lib.Vector(7,8,9),
+    //   m = lib.Matrix([[0,1,2,3],[4,5,6,0],[0,7,8,0],[0,0,0,1]]);
     const
-        a = lib.Vector(1,2,3), 
-        b = lib.Vector(4,5,6), 
-        c = lib.Vector(7,8,9),
-        m = lib.Matrix([[0,1,2,3],[4,5,6,0],[0,7,8,0],[0,0,0,1]]);
+        _a = lib.setVector(0, [1, 2, 3, 0])*4,
+        _b = lib.setVector(4, [4, 5, 6, 0])*4,
+        _c = lib.setVector(8, [7, 8, 9, 0])*4,
+        _m = lib.setMatrix(12, [[0,1,2,3],[4,5,6,0],[0,7,8,0],[0,0,0,1]])*4;
     var
         y, z, w, i, t0, t1;
     console.log('for pure JS:', 0.004, 'mS (*100)', 0.007, 'mS (*1000)', 0.0016, 'mS (*10000)');
     // y = -a + (-b - -c);
     t0 = performance.now();
     for (i = 0; i < 100; i++) {
-        y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
-        z = lib.VectorDot(a, lib.VectorCross(b, c));
-        w = lib.MatrixVectorMultiply(m, a);
+        //y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
+        //z = lib.VectorDot(a, lib.VectorCross(b, c));
+        //w = lib.MatrixVectorMultiply(m, a);
+        y = lib.test.VectorNormalize(lib.test.VectorAdd(lib.test.VectorNeg(_a), lib.test.VectorSub(lib.test.VectorNeg(_b), lib.test.VectorNeg(_c))));
+        z = lib.test.VectorDot(_a, lib.test.VectorCross(_b, _c));
+        w = lib.test.MatrixVectorMultiply(_m, _a);
     }
     t1 = performance.now();
     //console.log(y, z, w);
-    console.log((t1-t0)/100, 'mS (*100)');
+    console.log(((t1-t0)/100).toFixed(6), 'mS (*100)');
 
     t0 = performance.now();
     for (i = 0; i < 1000; i++) {
-        y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
-        z = lib.VectorDot(a, lib.VectorCross(b, c));
-        w = lib.MatrixVectorMultiply(m, a);
+        //y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
+        //z = lib.VectorDot(a, lib.VectorCross(b, c));
+        //w = lib.MatrixVectorMultiply(m, a);
+        y = lib.test.VectorNormalize(lib.test.VectorAdd(lib.test.VectorNeg(_a), lib.test.VectorSub(lib.test.VectorNeg(_b), lib.test.VectorNeg(_c))));
+        z = lib.test.VectorDot(_a, lib.test.VectorCross(_b, _c));
+        w = lib.test.MatrixVectorMultiply(_m, _a);
     }
     t1 = performance.now();
     //console.log(y, z, w);
-    console.log((t1-t0)/1000, 'mS (*1000)');
+    console.log(((t1-t0)/1000).toFixed(6), 'mS (*1000)');
 
     t0 = performance.now();
     for (i = 0; i < 10000; i++) {
-        y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
-        z = lib.VectorDot(a, lib.VectorCross(b, c));
-        w = lib.MatrixVectorMultiply(m, a);
+        //y = lib.VectorNormalize(lib.VectorAdd(lib.VectorNeg(a), lib.VectorSub(lib.VectorNeg(b), lib.VectorNeg(c))));
+        //z = lib.VectorDot(a, lib.VectorCross(b, c));
+        //w = lib.MatrixVectorMultiply(m, a);
+        y = lib.test.VectorNormalize(lib.test.VectorAdd(lib.test.VectorNeg(_a), lib.test.VectorSub(lib.test.VectorNeg(_b), lib.test.VectorNeg(_c))));
+        z = lib.test.VectorDot(_a, lib.test.VectorCross(_b, _c));
+        w = lib.test.MatrixVectorMultiply(_m, _a);
     }
     t1 = performance.now();
     //console.log(y, z, w);
-    console.log((t1-t0)/10000, 'mS (*10000)');
+    console.log(((t1-t0)/10000).toFixed(6), 'mS (*10000)');
 
+
+    t0 = performance.now();
+    for (i = 0; i < 100; i++) {
+        y = lib.test.Benchmark(_a, _b, _c, _m);
+    }
+    t1 = performance.now();
+    //console.log(y, z, w);
+    console.log(((t1-t0)/100).toFixed(6), 'mS (*100) $Benchmark');
+
+    t0 = performance.now();
+    for (i = 0; i < 1000; i++) {
+        y = lib.test.Benchmark(_a, _b, _c, _m);
+    }
+    t1 = performance.now();
+    //console.log(y, z, w);
+    console.log(((t1-t0)/1000).toFixed(6), 'mS (*1000) $Benchmark');
+
+    t0 = performance.now();
+    for (i = 0; i < 10000; i++) {
+        y = lib.test.Benchmark(_a, _b, _c, _m);
+    }
+    t1 = performance.now();
+    //console.log(y, z, w);
+    console.log(((t1-t0)/10000).toFixed(6), 'mS (*10000) $Benchmark');
 } //benchmark
+
+
+
+
+lib((lib) => {
+    testChapter1(lib);
+    testChapter2(lib);
+    testChapter3(lib);
+    testChapter4(lib);
+    //testChapter5(lib);
+
+    //testChapter6();
+    //testChapter7();
+    //testChapter8();
+    //testChapter9();
+    //testChapter10();
+
+    //testChapter11();
+    //testChapter12();
+    //testChapter13();
+    //testChapter14();
+    //testChapter15();
+
+    //testTuple();
+
+    benchmark(lib);
+    //draw6();
+    //draw7();
+    //draw9();
+    //draw10();
+    //draw11();
+});
+
+
 
 /*
 function draw6() {
@@ -405,39 +394,8 @@ function draw11() {
 } //draw11
 */
 
-testChapter1();
-testChapter2();
-testChapter3();
-//testChapter4();
-//testChapter5();
-
-//testChapter6();
-//testChapter7();
-//testChapter8();
-//testChapter9();
-//testChapter10();
-
-//testChapter11();
-//testChapter12();
-//testChapter13();
-//testChapter14();
-//testChapter15();
-
-//testTuple();
-testM4x4();
-testM4x4();
-testM4x4();
-
-benchmark();
-//draw6();
-//draw7();
-//draw9();
-//draw10();
-//draw11();
-
 export {
     assert,
     isEqual
 };
-
 console.log('ray.test.js - end');

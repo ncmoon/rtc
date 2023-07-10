@@ -1,177 +1,215 @@
 /*jshint esversion:8 */
 console.log('ray1to5.test.js - start');
 
-import lib from './ray.js';
 import {assert, isEqual} from './ray.test.js';
 
-function testChapter1() {
-    //TODO put closures around each test section.
+function testChapter1(lib) {
     /*
     var
-      a = lib.tuple.new(4.3, -4.2, 3.1, 1.0);
+        a = lib.tuple.new(4.3, -4.2, 3.1, 1.0);
     assert(isEqual(a, [4.3, -4.2, 3.1, 1]), 'expected tuple to be a point', a);
     a = lib.tuple.new(4.3, -4.2, 3.1, 0.0);
     assert(isEqual(a, [4.3, -4.2, 3.1, 0]), 'expected tuple to be a vector', a);
     */
+    (() => {
+        lib.test.VectorAdd(lib.setVector(0, [3, -2, 5, 1])*4, lib.setVector(4, [-2, 3, 1, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 1, 6, 1]), '$VectorAdd()', [1, 1, 6, 1], lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorSub(lib.setVector(0, [3, 2, 1, 1])*4, lib.setVector(4, [5, 6, 7, 1])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [-2, -4, -6, 0]), '$VectorSub(1)');
 
-    var p = lib.Point(4, -4, 3);
-    assert(isEqual(p, [4, -4, 3, 1]), 'expected tuple to be a point', p);
-    var v = lib.Vector(4, -4, 3);
-    assert(isEqual(v, [4, -4, 3, 0]), 'expected tuple to be a vector', v);
+        lib.test.VectorSub(lib.setVector(0, [3, 2, 1, 1])*4, lib.setVector(4, [5, 6, 7, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [-2, -4, -6, 1]), '$VectorSub(2)');
 
-    assert(isEqual(lib.VectorAdd(lib.Point(3, -2, 5), lib.Vector(-2, 3, 1)), [1, 1, 6, 1]), 'tuple.add()');
-    assert(isEqual(lib.VectorSub(lib.Point(3, 2, 1), lib.Point(5, 6, 7)), [-2, -4, -6, 0]), 'tuple.subtract(1)');
-    assert(isEqual(lib.VectorSub(lib.Point(3, 2, 1), lib.Vector(5, 6, 7)), [-2, -4, -6, 1]), 'tuple.subtract(2)');
-    assert(isEqual(lib.VectorSub(lib.Vector(3, 2, 1), lib.Vector(5, 6, 7)), [-2, -4, -6, 0]), 'tuple.subtract(3)');
-    assert(isEqual(lib.VectorNeg(lib.Point(1, -2, 3)), [-1, 2, -3, -1]), 'tuple.negate()');
-    assert(isEqual(lib.VectorMul(lib.Point(1, -2, 3), 3.5), [3.5, -7, 10.5, 3.5]), 'tuple.times(1)');
-    assert(isEqual(lib.VectorMul(lib.Point(1, -2, 3), 0.5), [0.5, -1, 1.5, 0.5]), 'tuple.times(2)');
-    assert(isEqual(lib.VectorDiv(lib.Point(1, -2, 3), 2), [0.5, -1, 1.5, 0.5]), 'tuple.divide()');
-    assert(isEqual(lib.VectorMag(lib.Vector(1, 0, 0)), 1), 'tuple.magnitude(1)');
-    assert(isEqual(lib.VectorMag(lib.Vector(0, 1, 0)), 1), 'tuple.magnitude(2)');
-    assert(isEqual(lib.VectorMag(lib.Vector(0, 0, 1)), 1), 'tuple.magnitude(3)');
-    assert(isEqual(lib.VectorMag(lib.Vector(1, 2, 3)), Math.sqrt(14)), 'tuple.magnitude(4)');
-    assert(isEqual(lib.VectorMag(lib.Vector(-1, -2, -3)), Math.sqrt(14)), 'tuple.magnitude(5)');
-    assert(isEqual(lib.VectorNormalize(lib.Vector(4, 0, 0)), lib.Vector(1, 0, 0)), 'tuple.normalize(1)');
-    assert(isEqual(lib.VectorNormalize(lib.Vector(1, 2, 3)), lib.Vector(1/Math.sqrt(14), 2/Math.sqrt(14), 3/Math.sqrt(14))), 'tuple.normalize(2)');
-    assert(isEqual(lib.VectorMag(lib.VectorNormalize(lib.Vector(1, 2, 3))), 1), 'tuple.normalize(3)', lib.VectorMag(lib.VectorNormalize(lib.Vector(1, 2, 3))));
-    assert(isEqual(lib.VectorDot(lib.Vector(1,2,3), lib.Vector(2,3,4)), 20), 'tuple.dot()');
+        lib.test.VectorSub(lib.setVector(0, [3, 2, 1, 0])*4, lib.setVector(4, [5, 6, 7, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [-2, -4, -6, 0]), '$VectorSub(3)', lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorNeg(lib.setVector(0, [1, -2, 3, 1])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [-1, 2, -3, -1]), '$VectorNeg()', lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorMul(lib.setVector(0, [1, -2, 3, 1])*4, lib.setVector(4, [3.5, 3.5, 3.5, 3.5])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [3.5, -7, 10.5, 3.5]), '$VectorMul(1)', lib.getVector(8));
 
-    (function() {
+        lib.test.VectorMul(lib.setVector(0, [1, -2, 3, 1])*4, lib.setVector(4, [0.5, 0.5, 0.5, 0.5])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [0.5, -1, 1.5, 0.5]), '$VectorMul(2)', lib.getVector(8));                    
+    })();
+    (() => {
+        lib.test.VectorDiv(lib.setVector(0, [1, -2, 3, 1])*4, lib.setVector(4, [2, 2, 2, 2])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [0.5, -1, 1.5, 0.5]), '$VectorDiv()', lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorMag(lib.setVector(0, [1, 0, 0, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 1, 1, 1]), '$VectorMag(1)', lib.getVector(8));
+
+        lib.test.VectorMag(lib.setVector(0, [0, 1, 0, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 1, 1, 1]), '$VectorMag(2)', lib.getVector(8));
+
+        lib.test.VectorMag(lib.setVector(0, [0, 0, 1, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 1, 1, 1]), '$VectorMag(3)', lib.getVector(8));
+
+        lib.test.VectorMag(lib.setVector(0, [1, 2, 3, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [Math.sqrt(14), Math.sqrt(14), Math.sqrt(14), Math.sqrt(14)]), '$VectorMag(4)', lib.getVector(8));
+
+        lib.test.VectorMag(lib.setVector(0, [-1, -2, -3, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [Math.sqrt(14), Math.sqrt(14), Math.sqrt(14), Math.sqrt(14)]), '$VectorMag(5)', lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorNormalize(lib.setVector(0, [4, 0, 0, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 0, 0, 0]), '$VectorNormalize(1)', lib.getVector(8));
+
+        lib.test.VectorNormalize(lib.setVector(0, [1, 2, 3, 0])* 4, 8*4);
+        assert(isEqual(lib.getVector(8), [1/Math.sqrt(14), 2/Math.sqrt(14), 3/Math.sqrt(14), 0]), '$VectorNormalize(2)', lib.getVector(8));
+
+        lib.test.VectorNormalize(lib.setVector(0, [1, 2, 3, 0])*4, 4*4);
+        lib.test.VectorMag(4*4, 8*4);
+        assert(isEqual(lib.getVector(8), [1, 1, 1, 1]), '$VectorNormalize(3)', lib.getVector(8));
+    })();
+    (() => {
+        lib.test.VectorDot(lib.setVector(0, [1,2,3,0])*4, lib.setVector(4, [2,3,4, 0])*4, 8*4);
+        assert(isEqual(lib.getVector(8), [20, 20, 20, 20]), '$VectorDot()', lib.getVector(8));
+    })();
+    (() => {
         const
-            c = lib.Vector(1, 2, 3),
-            d = lib.Vector(2, 3, 4);
-        assert(isEqual(lib.VectorCross(c, d), lib.Vector(-1, 2, -1)), 'tuple.cross(1)', lib.VectorCross(c, d));
-        assert(isEqual(lib.VectorCross(d, c), lib.Vector(1, -2, 1)), 'tuple.cross(2)', lib.VectorCross(d, c));
+            c = lib.setVector(0, [1, 2, 3, 0]),
+            d = lib.setVector(4, [2, 3, 4, 0]);
+        lib.test.VectorCross(0*4, 4*4, 8*4);
+        assert(isEqual(lib.getVector(8), [-1, 2, -1, 0]), '$VectorCross(1)', lib.getVector(8));
+        lib.test.VectorCross(4*4, 0*4, 8*4)
+        assert(isEqual(lib.getVector(8), [1, -2, 1, 0]), '$VectorCross(2)', lib.getVector(8));
     })();
 } //testChapter1
 
-function testChapter2() {
+function testChapter2(lib) {
+    /*
     const
-      c = lib.Color(-0.5, 0.4, 1.7);
+        c = lib.Color(-0.5, 0.4, 1.7);
     assert(isEqual(c, [-0.5, 0.4, 1.7, 0]), 'color(0)');
     assert(c[lib.R] == -0.5, 'color(r)');
     assert(c[lib.G] == 0.4, 'color(g)');
-    assert(c[lib.B] == 1.7, 'color(b)');
+    assert(c[lib.B] == 1.7, 'color(b)');*/
 
-    assert(isEqual(lib.VectorAdd(lib.Color(0.9, 0.6, 0.75), lib.Color(0.7, 0.1, 0.25)), [1.6, 0.7, 1.0, 0]), 'color.add()');
-    assert(isEqual(lib.VectorSub(lib.Color(0.9, 0.6, 0.75), lib.Color(0.7, 0.1, 0.25)), [0.2, 0.5, 0.5, 0]), 'color.subtract()');
-    assert(isEqual(lib.VectorMul(lib.Color(0.2, 0.3, 0.4), 2), [0.4, 0.6, 0.8, 0]), 'color.times()');
-    assert(isEqual(lib.ColorProduct(lib.Color(1, 0.2, 0.4), lib.Color(0.9, 1, 0.1)), [0.9, 0.2, 0.04, 0]), 'color.product()', lib.ColorProduct(lib.Color(1, 0.2, 0.4), lib.Color(0.9, 1, 0.1)));
+    lib.test.VectorAdd(lib.setVector(0, [0.9, 0.6, 0.75, 0])*4, lib.setVector(4, [0.7, 0.1, 0.25, 0])*4, 8*4);
+    assert(isEqual(lib.getVector(8), [1.6, 0.7, 1.0, 0]), 'color.add()', lib.getVector(8));
+    lib.test.VectorSub(lib.setVector(0, [0.9, 0.6, 0.75, 0])*4, lib.setVector(4, [0.7, 0.1, 0.25, 0])*4, 8*4);
+    assert(isEqual(lib.getVector(8), [0.2, 0.5, 0.5, 0]), 'color.subtract()', lib.getVector(8));
+    lib.test.VectorMul(lib.setVector(0, [0.2, 0.3, 0.4, 0])*4, lib.setVector(4, [2, 2, 2, 2])*4, 8*4);
+    assert(isEqual(lib.getVector(8), [0.4, 0.6, 0.8, 0]), 'color.times()', lib.getVector(8));
+    lib.test.ColorProduct(lib.setVector(0, [1, 0.2, 0.4, 0])*4, lib.setVector(4, [0.9, 1, 0.1, 0])*4, 8*4);
+    assert(isEqual(lib.getVector(8), [0.9, 0.2, 0.04, 0]), 'color.product()', lib.getVector(8));
 } //testChapter2
 
-function testChapter3() {
-    var
-        //m2 = [[1,2], [5.5,6.5]],
-        //m3 = [[1,2,3], [5.5,6.5,7.5], [9, 10, 11]],
-        m4 = [[1,2,3,4], [5.5,6.5,7.5,8.5], [9, 10, 11, 12], [13.5, 14.5, 15.5, 16.5]];
-    assert(isEqual(lib.Matrix(m4), [].concat(...m4)), 'Matrix.new()', lib.Matrix(m4), [].concat(...m4));
-    //assert(isEqual(lib.Matrix(m3), m3), 'm3x3.new()', lib.m3x3.new(m3), m3);
-    //assert(isEqual(lib.Matrix(m2), m2), 'm2x2.new()', lib.m2x2.new(m2), m2);
-
-    var
-      a = lib.Matrix([[1,2,3,4], [5,6,7,8], [9,8,7,6], [5,4,3,2]]),
-      b = lib.Matrix([[-2,1,2,3], [3,2,1,-1], [4,3,6,5], [1,2,7,8]]);
-    assert(isEqual(lib.MatrixMultiply(a, b), [20,22,50,48, 44,54,114,108, 40,58,110,102, 16,26,46,42]), 'Matrix.multiply()', a, b, lib.MatrixMultiply(a, b));
-
-    var
-        m = lib.Matrix([[1,2,3,4], [2,4,4,2], [8,6,4,1], [0,0,0,1]]),
-        v = lib.Point(1, 2, 3);
-    assert(isEqual(lib.MatrixVectorMultiply(m, v), lib.Point(18, 24, 33)), 'MatrixVectorMultiply(M,v)', lib.MatrixVectorMultiply(m, v));
-
-    var
-        n = lib.Matrix([[0,1,2,4],[1,2,4,8],[2,4,8,16],[4,8,16,32]]);
-    assert(isEqual(lib.MatrixMultiply(n, lib.MatrixIdentity()), n), 'm4x4.identity(1)', lib.MatrixMultiply(n, lib.MatrixIdentity()), n, lib.MatrixIdentity());    
-    assert(isEqual(lib.MatrixVectorMultiply(lib.MatrixIdentity(), lib.Point(1,2,3)), lib.Point(1,2,3)), 'm4x4.identity(2)');
-
-    assert(isEqual(lib.MatrixTranspose(lib.Matrix([[0,9,3,0],[9,8,0,8],[1,8,5,3],[0,0,5,8]])), lib.Matrix([[0,9,1,0],[9,8,8,0],[3,0,5,5],[0,8,3,8]])), 'm4x4.transpose(1)');
-    assert(isEqual(lib.MatrixTranspose(lib.MatrixIdentity()), lib.MatrixIdentity()), 'm4x4.transpose(2)');
-
-    /*assert(isEqual(lib.m2x2.determinant(lib.m2x2.new([[1,5],[-3,2]])), 17), 'm2x2.determinant()');
-
-    //assert(isEqual(lib.m3x3.subMatrix(lib.m3x3.new([[1,5,0],[-3,2,7],[0,6,-3]]), 0, 2), lib.m2x2.new([[-3,2],[0,6]])), 'm3x3.subMatrix()');
-    //assert(isEqual(lib.m4x4.subMatrix(lib.m4x4.new([[-6,1,1,6],[-8,5,8,6],[-1,0,8,2],[-7,1,-1,1]]), 2, 1), lib.m3x3.new([[-6,1,6],[-8,8,6],[-7,-1,1]])), 'm4x4.subMatrix()');
-
-    (function() {
-        var 
-            a = lib.m3x3.new([[3,5,0],[2,-1,-7],[6,-1,5]]);
-        assert(isEqual(lib.m2x2.determinant(lib.m3x3.subMatrix(a, 1, 0)), 25), 'm3x3.minor(1)', lib.m2x2.determinant(lib.m3x3.subMatrix(a)));
-        assert(isEqual(lib.m3x3.minor(a, 1, 0), 25), 'm3x3.minor(2)');
-        assert(isEqual(lib.m3x3.minor(a, 0, 0), -12), 'm3x3.coFactor(1)');
-        assert(isEqual(lib.m3x3.coFactor(a, 0, 0), -12), 'm3x3.coFactor(2)', lib.m3x3.coFactor(a, 0, 0));
-        assert(isEqual(lib.m3x3.coFactor(a, 1, 0), -25), 'm3x3.coFactor(3)', lib.m3x3.coFactor(a, 1, 0));
+function testChapter3(lib) {
+    (() => {
+        var
+            m4 = [[1,2,3,4], [5.5,6.5,7.5,8.5], [9, 10, 11, 12], [13.5, 14.5, 15.5, 16.5]];
+        lib.setMatrix(0, m4);
+        assert(isEqual(lib.getMatrix(0), m4), 'Matrix.new()', lib.getMatrix(0), m4);  
     })();
-    (function() {
-        var
-            a = lib.m3x3.new([[1,2,6], [-5,8,-4], [2,6,4]]);
-        assert(isEqual(lib.m3x3.coFactor(a, 0, 0), 56), 'm3x3.determinant(1)');    
-        assert(isEqual(lib.m3x3.coFactor(a, 0, 1), 12), 'm3x3.determinant(2)');    
-        assert(isEqual(lib.m3x3.coFactor(a, 0, 2), -46), 'm3x3.determinant(3)');    
-        assert(isEqual(lib.m3x3.determinant(a), -196), 'm3x3.determinant(4)');  
-    })();*/
-
-    (function() {
-        var
-            a = lib.Matrix([[-2,-8,3,5], [-3,1,7,3], [1,2,-9,6], [-6,7,7,-9]]);
-        //assert(isEqual(lib.m4x4.coFactor(a, 0, 0), 690), 'm4x4.determinant(1)', a, lib.m4x4.coFactor(a, 0, 0));    
-        //assert(isEqual(lib.m4x4.coFactor(a, 0, 1), 447), 'm4x4.determinant(2)');    
-        //assert(isEqual(lib.m4x4.coFactor(a, 0, 2), 210), 'm4x4.determinant(3)');  
-        //assert(isEqual(lib.m4x4.coFactor(a, 0, 3), 51), 'm4x4.determinant(4)');    
-        assert(isEqual(lib.MatrixDeterminant(a), -4071), 'm4x4.determinant(5)');
+    (() => {
+        lib.test.MatrixMultiply(
+            lib.setMatrix(0,  [[1,2,3,4],  [5,6,7,8],  [9,8,7,6], [5,4,3,2]])*4, 
+            lib.setMatrix(16, [[-2,1,2,3], [3,2,1,-1], [4,3,6,5], [1,2,7,8]])*4, 
+            32*4
+        );
+        assert(isEqual(lib.getMatrix(32), [[20,22,50,48], [44,54,114,108], [40,58,110,102], [16,26,46,42]]), 'Matrix.multiply()', lib.getMatrix(32));  
+    })();
+    (() => {
+        lib.test.MatrixVectorMultiply(
+            lib.setMatrix(0, [[1,2,3,4], [2,4,4,2], [8,6,4,1], [0,0,0,1]])*4, 
+            lib.setVector(16, [1, 2, 3, 1])*4,
+            32*4
+        );
+        assert(isEqual(lib.getVector(32), [18, 24, 33, 1]), 'MatrixVectorMultiply(M,v)', lib.getVector(32));
     })();
 
-    (function() {
-        var
-          a0 = lib.Matrix([[6,4,4,4], [5,5,7,6], [4,-9,3,-7], [9,1,7,-6]]),
-          a1 = lib.Matrix([[-4,2,-2,-3], [9,6,2,6], [0,-5,1,-5], [0,0,0,0]]),
-          a2 = lib.Matrix([[-5,2,6,-8], [1,-5,1,8], [7,7,-6,-7], [1,-3,7,4]]);
-        assert(isEqual(lib.MatrixDeterminant(a0), -2120), 'm4x4.inverse(1)');  
-        assert(isEqual(lib.MatrixDeterminant(a1), 0), 'm4x4.inverse(2)');  
-        var
-          b = lib.MatrixInverse(a2); 
-        assert(isEqual(lib.MatrixDeterminant(a2), 532), 'm4x4.inverse(3)');
-        //assert(isEqual(lib.m4x4.coFactor(a2, 2, 3), -160), 'm4x4.inverse(4)');
-        assert(isEqual(b[4*3+2], -160/532), 'm4x4.inverse(5)');
-        //assert(isEqual(lib.m4x4.coFactor(a2, 3, 2), 105), 'm4x4.inverse(6)');
-        assert(isEqual(b[4*2+3], 105/532), 'm4x4.inverse(7)');
-        assert(isEqual(b, [
-            //[
-                0.21804511278195488,
-                0.45112781954887216,
-                0.24060150375939848,
-                -0.045112781954887216,
-            //],
-            //[
-                -0.8082706766917294,
-                -1.4567669172932332,
-                -0.44360902255639095,
-                0.5206766917293233,
-            //],
-            //[
-                -0.07894736842105263,
-                -0.2236842105263158,
-                -0.05263157894736842,
-                0.19736842105263158,
-            //],
-            //[
-                -0.5225563909774437,
-                -0.8139097744360902,
-                -0.3007518796992481,
-                0.30639097744360905
-            //]
-        ]), 'm4x4.inverse(8)', b);
-    })();
+    const //TODO should be defined in ray lib
+        MatrixIdentity = [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]];
 
-    (function() {
-        const
-            a = lib.Matrix([[3,-9,7,3],[3,-8,2,-9],[-4,4,4,1],[-6,5,-1,1]]),
-            b = lib.Matrix([[8,2,2,2],[3,-1,7,0],[7,0,5,4],[6,-2,0,5]]),
-            c = lib.MatrixMultiply(a, b);
-        assert(isEqual(lib.MatrixMultiply(c, lib.MatrixInverse(b)), a), 'm4x4.inverse*product', c, lib.MatrixMultiply(c, lib.MatrixInverse(b)));    
+    (() => {
+        lib.test.MatrixMultiply(
+            lib.setMatrix(0, [[0,1,2,4],[1,2,4,8],[2,4,8,16],[4,8,16,32]])*4,
+            lib.setMatrix(16, MatrixIdentity)*4,
+            32*4
+        );
+        assert(isEqual(lib.getMatrix(32), [[0,1,2,4],[1,2,4,8],[2,4,8,16],[4,8,16,32]]), 'MatrixIdentity(1)', lib.getMatrix(32));    
+
+        lib.test.MatrixVectorMultiply(
+            lib.setMatrix(0, MatrixIdentity)*4, 
+            lib.setVector(16, [1,2,3,1])*4, 
+            32*4
+        );
+        assert(isEqual(lib.getVector(32), [1,2,3,1]), 'MatrixIdentity(2)', lib.getVector(32));
+    })();
+    (() => {
+        lib.test.MatrixTranspose(
+            lib.setMatrix(0, [[0,9,3,0],[9,8,0,8],[1,8,5,3],[0,0,5,8]])*4,
+            32*4
+        );
+        assert(isEqual(lib.getMatrix(32), [[0,9,1,0],[9,8,8,0],[3,0,5,5],[0,8,3,8]]), 'MatrixTranspose(1)', lib.getMatrix(32));
+
+        lib.test.MatrixTranspose(
+            lib.setMatrix(0, MatrixIdentity)*4, 
+            32*4
+        );
+        assert(isEqual(lib.getMatrix(32), MatrixIdentity), 'MatrixTranspose(2)', lib.getMatrix(32));
+    })();
+    (() => {
+        lib.test.MatrixDeterminant(
+            lib.setMatrix(0, [[-2,-8,3,5], [-3,1,7,3], [1,2,-9,6], [-6,7,7,-9]])*4,
+            32*4
+        );
+        assert(isEqual(lib.getVector(32)[0], -4071), 'MatrixDeterminant(5)', lib.getVector(32));
+    })();
+    (() => {
+        var
+            a0 = [[6,4,4,4], [5,5,7,6], [4,-9,3,-7], [9,1,7,-6]],
+            a1 = [[-4,2,-2,-3], [9,6,2,6], [0,-5,1,-5], [0,0,0,0]],
+            a2 = [[-5,2,6,-8], [1,-5,1,8], [7,7,-6,-7], [1,-3,7,4]];
+        lib.test.MatrixDeterminant(
+            lib.setMatrix(0, a0)*4,
+            32*4
+        );
+        assert(isEqual(lib.getVector(32)[0], -2120), 'MatrixInverse(1)', lib.getVector(32));  
+        lib.test.MatrixDeterminant(
+            lib.setMatrix(0, a1)*4,
+            32*4
+        );
+        assert(isEqual(lib.getVector(32)[0], 0), 'MatrixInverse(2)', lib.getVector(32));  
+
+        lib.test.MatrixDeterminant(
+            lib.setMatrix(0, a2)*4,
+            32*4
+        );
+        assert(isEqual(lib.getVector(32)[0], 532), 'MatrixInverse(3)');
+
+        lib.test.MatrixInverse(
+            lib.setMatrix(0, a2)*4,
+            32*4
+        ); 
+        assert(isEqual(lib.getMatrix(32)[3][2], -160/532), 'MatrixInverse(5)', lib.getMatrix(32));
+        assert(isEqual(lib.getMatrix(32)[2][3], 105/532), 'MatrixInverse(7)', lib.getMatrix(32));
+        assert(isEqual(lib.getMatrix(32), [
+            [ 0.21804511278195488,   0.45112781954887216,    0.24060150375939848,    -0.045112781954887216 ],
+            [-0.8082706766917294,   -1.4567669172932332,    -0.44360902255639095,     0.5206766917293233   ],
+            [-0.07894736842105263,  -0.2236842105263158,    -0.05263157894736842,     0.19736842105263158  ],
+            [-0.5225563909774437,   -0.8139097744360902,    -0.3007518796992481,      0.30639097744360905  ]
+        ]), 'MatrixInverse(8)', lib.getMatrix(32));
+    })();
+    (() => {
+        lib.setMatrix(0, [[3,-9,7,3],[3,-8,2,-9],[-4,4,4,1],[-6,5,-1,1]]); // a
+        lib.setMatrix(16, [[8,2,2,2],[3,-1,7,0],[7,0,5,4],[6,-2,0,5]]);    // b
+        lib.test.MatrixInverse(16*4, 32*4);                                //~b
+        lib.test.MatrixMultiply(0*4, 16*4, 48*4);                          // c = a*b
+        lib.test.MatrixMultiply(48*4, 32*4, 64*4);                         // c*~b = a 
+        assert(isEqual(lib.getMatrix(64), [[3,-9,7,3],[3,-8,2,-9],[-4,4,4,1],[-6,5,-1,1]]), 'MatrixInverse*product', lib.getMatrix(64));    
     })();
 } //testChapter3
 
-function testChapter4() {
+function testChapter4(lib) {
+    /*
     (function() {
         const
             transform = lib.m4x4.translate(5, -3, 2);
@@ -239,9 +277,10 @@ function testChapter4() {
             T = lib.m4x4.multiply(C, lib.m4x4.multiply(B, A));
         assert(isEqual(lib.tuple.multiply(T, p), lib.tuple.point(15, 0, 7)), 'm4x4.combine(4)');
     })();
+    */
 } //testChapter4
 
-function testChapter5() {
+function testChapter5(lib) {
     (function() {
         const
             p = lib.tuple.point(1, 2, 3),
@@ -356,10 +395,6 @@ function testChapter5() {
         assert(xs.length == 0, 'sphere.transform(3)', xs);
     })();
 } //testChapter5
-
-
-
-
 
 export {
     testChapter1,
